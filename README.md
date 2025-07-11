@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🗺️ MemoryMap
 ## Günlükten Anı Haritası Oluşturan Yapay Zekâ Uygulaması
 
@@ -107,3 +108,7 @@ Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICE
 ---
 
 **MemoryMap** - Anılarınızı harita üzerinde keşfedin! 🗺️✨ 
+=======
+# memorymap-app
+AI-powered diary mapping applicaAI-powAI-powered diary mapping application with emotion analysis and location trackingered diary mapping application with emotion analysis and location trackingtion with emotion analysis and location tracking
+>>>>>>> c826e9b4a2a06321e41bbabaa3396f95e203d480
