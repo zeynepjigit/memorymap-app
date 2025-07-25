@@ -1,5 +1,5 @@
 # 🗺️ MemoryMap
-
+[🔗 GitHub Repository](https://github.com/zeynepjigit/memorymap-app)
 ## AI-Powered Diary & Memory Mapping Application
 
 MemoryMap is an innovative digital platform that analyzes users' daily experiences with artificial intelligence, enriching them with emotional states, visited places, and AI-powered visuals. The app helps users visualize their memories on a map, track their emotional journey, and receive personal development coaching powered by GPT-4.
