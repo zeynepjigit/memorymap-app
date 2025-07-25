@@ -1,114 +1,131 @@
-<<<<<<< HEAD
 # 🗺️ MemoryMap
-## Günlükten Anı Haritası Oluşturan Yapay Zekâ Uygulaması
 
-MemoryMap, kullanıcıların günlük deneyimlerini yapay zekâ ile analiz ederek duygu durumları, ziyaret edilen mekânlar ve AI destekli görsellerle zenginleştiren yenilikçi bir dijital platformdur.
+## AI-Powered Diary & Memory Mapping Application
 
-## ✨ Özellikler
+MemoryMap is an innovative digital platform that analyzes users' daily experiences with artificial intelligence, enriching them with emotional states, visited places, and AI-powered visuals. The app helps users visualize their memories on a map, track their emotional journey, and receive personal development coaching powered by GPT-4.
 
-- 🤖 **AI Duygu Analizi**: HuggingFace ile günlük metinlerinizin duygu analizi
-- 🗺️ **Anı Haritalama**: Ziyaret ettiğiniz yerleri OpenStreetMap üzerinde görselleştirme
-- 🎨 **AI Görsel Üretimi**: Stable Diffusion ile anılarınıza özel görseller
-- 🧠 **Kişisel Gelişim Koçluğu**: GPT-4 destekli reflektif sorular ve öneriler
-- 📱 **Çoklu Platform**: Web ve mobil uygulama desteği
+---
 
-## 🚀 Hızlı Başlangıç
+## ✨ Features
+- **AI Emotion Analysis:** Analyze diary texts for emotions using HuggingFace models
+- **Memory Mapping:** Visualize visited places on interactive maps (OpenStreetMap)
+- **AI Visual Generation:** Create memory-specific images with Stable Diffusion
+- **Personal Development Coaching:** Get reflective questions and suggestions powered by GPT-4
+- **Diary Management:** Create, update, and manage diary entries
+- **User Authentication:** Secure registration, login, and JWT-based session management
+- **Notifications:** Receive motivational and reminder push notifications
+- **Analytics:** Track diary habits, emotion changes, and visited places
 
-### Backend Kurulumu
+---
+
+## 🚀 Quick Start
+
+### Backend Setup (FastAPI)
 ```bash
 cd backend
 python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+# On Windows:
+venv\Scripts\activate
+# On Mac/Linux:
+source venv/bin/activate
 pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
-### Frontend Kurulumu
+### Frontend Setup (React.js)
 ```bash
 cd frontend
 npm install
 npm start
 ```
-
-## 📁 Proje Yapısı
-
-```
-memorymap/
-├── backend/          # FastAPI tabanlı API
-├── frontend/         # React.js kullanıcı arayüzü
-├── features/         # AI özellikleri ve modüller
-│   ├── emotion-analysis/
-│   ├── location-extraction/
-│   └── image-generation/
-└── docs/            # Proje dokümantasyonu
-```
-
-## 🔧 İlk Özellik: Duygu Analizi
-
-API endpoint: `POST /api/v1/emotion/analyze-emotion`
-
-Örnek kullanım:
-```bash
-curl -X POST "http://localhost:8000/api/v1/emotion/analyze-emotion" \
-     -H "Content-Type: application/json" \
-     -d '{"text": "Bugün harika bir gün geçirdim!"}'
-```
-
-Beklenen çıktı:
-```json
-{
-  "emotion": "POSITIVE",
-  "confidence": 0.9876,
-  "text": "Bugün harika bir gün geçirdim!"
-}
-```
-
-## 🛠️ Teknolojiler
-
-- **Backend**: FastAPI, Python
-- **Frontend**: React.js, React Native
-- **AI Modelleri**: HuggingFace, spaCy, Stable Diffusion, GPT-4
-- **Veritabanı**: Supabase (PostgreSQL)
-- **Harita**: Leaflet.js, OpenStreetMap
-- **Medya**: Firebase Storage
-- **Bildirimler**: Firebase Cloud Messaging
-
-## 📚 Dokümantasyon
-
-- [Kullanıcı Akışı](docs/user-flow.md)
-- [Teknoloji Stack](docs/tech-stack.md)
-- [Proje Fikri](docs/idea.md)
-- [Görev Listesi](docs/task-list.md)
-- [Kurulum Rehberi](docs/setup-guide.md)
-
-## 🎯 Hedefler
-
-- 6 ay içerisinde 5.000+ aktif kullanıcı
-- %80+ doğrulukla duygu ve mekân analizi
-- 1.000+ kişiselleştirilmiş AI görseli
-- %99.9 uptime ile kesintisiz hizmet
-
-## 🤝 Katkıda Bulunma
-
-1. Repository'yi fork edin
-2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
-3. Değişikliklerinizi commit edin (`git commit -m 'Add amazing feature'`)
-4. Branch'inizi push edin (`git push origin feature/amazing-feature`)
-5. Pull Request oluşturun
-
-## 📄 Lisans
-
-Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakınız.
-
-## 📞 İletişim
-
-- **Geliştirici**: Zeynep Yiğit
-- **Proje**: MemoryMap - AI Destekli Günlük ve Anı Haritalama Uygulaması
+The app will open at [http://localhost:3000](http://localhost:3000)
 
 ---
 
-**MemoryMap** - Anılarınızı harita üzerinde keşfedin! 🗺️✨ 
-=======
-# memorymap-app
-AI-powered diary mapping applicaAI-powAI-powered diary mapping application with emotion analysis and location trackingered diary mapping application with emotion analysis and location trackingtion with emotion analysis and location tracking
->>>>>>> c826e9b4a2a06321e41bbabaa3396f95e203d480
+## 📁 Project Structure
+```
+AIFD- Project/
+├── backend/         # FastAPI-based API
+│   ├── app/
+│   ├── requirements.txt
+│   └── ...
+├── frontend/        # React.js user interface
+│   ├── src/
+│   ├── package.json
+│   └── ...
+├── features/        # AI features and modules
+├── docs/            # Project documentation
+└── README.md        # Project overview
+```
+
+---
+
+## 🛠️ Technologies
+- **Backend:** FastAPI, Python, SQLAlchemy, HuggingFace Transformers, spaCy, Stable Diffusion, Firebase Admin SDK
+- **Frontend:** React.js, React Router, Leaflet.js, Axios, CSS Modules
+- **Database:** Supabase (PostgreSQL)
+- **Media Storage:** Firebase Storage
+- **Notifications:** Firebase Cloud Messaging
+- **AI Models:** HuggingFace, GPT-4, Stable Diffusion
+
+---
+
+## ⚙️ How It Works
+1. **User registers/logs in** (JWT-based authentication)
+2. **Creates a diary entry** (text input)
+3. **AI analyzes the text** for emotion and extracts locations
+4. **AI generates a visual** for the memory (optional)
+5. **Memories are mapped** on an interactive map
+6. **User receives coaching** and analytics based on their entries
+7. **Notifications** keep users engaged and motivated
+
+---
+
+## 📖 API Overview (Selected Endpoints)
+| Method | Endpoint                        | Description                       |
+|--------|----------------------------------|-----------------------------------|
+| POST   | /auth/register                  | Register a new user               |
+| POST   | /auth/login                     | User login                        |
+| GET    | /auth/me                        | Get current user info             |
+| POST   | /api/v1/diary/                  | Create a diary entry              |
+| GET    | /api/v1/diary/                  | List diary entries                |
+| POST   | /api/v1/emotion/analyze         | Analyze emotion in text           |
+| POST   | /emotion/image/generate         | Generate image from diary entry   |
+| POST   | /emotion/coaching/questions     | Get reflective questions          |
+| POST   | /emotion/coaching/advice        | Get personal development advice   |
+
+For more, see the FastAPI docs at `/docs` when the backend is running.
+
+---
+
+## 🧑‍💻 Contributing
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push your branch (`git push origin feature/amazing-feature`)
+5. Create a Pull Request
+
+---
+
+## 🔒 Security & Best Practices
+- **Sensitive files** (such as `backend/firebase-service-account.json`) are excluded from version control via `.gitignore` and must NOT be pushed to GitHub.
+- Use environment variables for API keys and secrets.
+- All API traffic should be over HTTPS in production.
+
+---
+
+## 📚 Documentation
+- [User Flow](docs/user-flow.md)
+- [Technology Stack](docs/tech-stack.md)
+- [Project Idea](docs/idea.md)
+- [Task List](docs/task-list.md)
+- [Setup Guide](docs/setup-guide.md)
+
+---
+
+## 📄 License
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+---
+
+**MemoryMap** - Discover your memories on the map! 🗺️✨ 
