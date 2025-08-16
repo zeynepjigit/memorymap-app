@@ -1,13 +1,38 @@
-# User model 
-from sqlalchemy import Column, Integer, String, DateTime
-from sqlalchemy.sql import func
-from ..utils.database import Base
+"""
+User Model for Production Database
+"""
 
-# User table definition for the database
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, Text
+from sqlalchemy.sql import func
+from datetime import datetime
+from ..database.base import Base
+
 class User(Base):
     __tablename__ = "users"
-    id = Column(Integer, primary_key=True, index=True)  # Unique user ID
-    email = Column(String, unique=True, index=True, nullable=False)  # User's email (must be unique)
-    name = Column(String, nullable=False)  # User's name
-    hashed_password = Column(String, nullable=False)  # Hashed password for security
-    created_at = Column(DateTime(timezone=True), server_default=func.now())  # Registration timestamp
+    
+    id = Column(String, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True, nullable=False)
+    username = Column(String, unique=True, index=True, nullable=False)
+    full_name = Column(String, nullable=True)
+    hashed_password = Column(String, nullable=False)
+    
+    # Profile information
+    bio = Column(Text, nullable=True)
+    profile_picture_url = Column(String, nullable=True)
+    location = Column(String, nullable=True)
+    
+    # Account status
+    is_active = Column(Boolean, default=True)
+    is_verified = Column(Boolean, default=False)
+    
+    # Timestamps
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    last_login = Column(DateTime(timezone=True), nullable=True)
+    
+    # Settings
+    timezone = Column(String, default="UTC")
+    language = Column(String, default="en")
+    
+    def __repr__(self):
+        return f"<User(id={self.id}, email={self.email}, username={self.username})>"
