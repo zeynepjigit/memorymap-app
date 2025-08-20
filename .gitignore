@@ -26,3 +26,6 @@ frontend/build/
 # IDE files
 .vscode/
 .idea/
+# Python derlenmiş bytecode
+__pycache__/
+*.pyc
