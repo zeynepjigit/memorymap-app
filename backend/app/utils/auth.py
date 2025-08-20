@@ -4,9 +4,6 @@ from jose import jwt
 import os
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from sqlalchemy.orm import Session
-from .database import get_db
-from ..models import user as user_model
 
 # Şifre hashleme için PassLib context
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -43,7 +40,7 @@ def decode_access_token(token: str):
         return None
 
 # Giriş yapmış kullanıcıyı döndüren dependency
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+def get_current_user(token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -52,7 +49,19 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     payload = decode_access_token(token)
     if payload is None or "user_id" not in payload:
         raise credentials_exception
-    user = db.query(user_model.User).filter(user_model.User.id == payload["user_id"]).first()
-    if user is None:
-        raise credentials_exception
-    return user 
+    # Firestore ile uyumlu olması için user_id'yi string'e çevirme
+    user_id_str = str(payload["user_id"])
+    # Firestore'da kullanıcıyı bulma mantığı burada olmalı
+    # Örneğin:
+    # from firebase_admin import firestore
+    # db = firestore.client()
+    # user_ref = db.collection("users").document(user_id_str)
+    # user_doc = user_ref.get()
+    # if user_doc.exists:
+    #     user_data = user_doc.to_dict()
+    #     return user_data # Firestore'da kullanıcı bilgileri
+    # else:
+    #     raise credentials_exception
+    # Bu kısım Firestore ile uyumlu hale getirilmelidir.
+    # Şimdilik placeholder olarak döndürüyoruz.
+    return {"id": user_id_str, "username": "test_user"} 

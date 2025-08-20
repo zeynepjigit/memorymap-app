@@ -3,6 +3,9 @@ from typing import Dict, List, Optional
 import json
 from collections import defaultdict, Counter
 
+# Firestore/Firebase ile uyumlu analiz fonksiyonları burada olmalı.
+# SQLAlchemy ve SQL tabanlı kodlar kaldırıldı.
+
 class AnalyticsTracker:
     """
     Backend analytics ve metrik takibi için sınıf
