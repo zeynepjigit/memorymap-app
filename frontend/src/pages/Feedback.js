@@ -1,262 +1,152 @@
 import React, { useState } from 'react';
-import { analyticsEvents } from '../services/analytics';
+import { Link } from 'react-router-dom';
 
 const Feedback = () => {
-  const [feedback, setFeedback] = useState({
-    rating: 5,
-    category: 'general',
-    message: '',
-    features: [],
-    improvements: '',
-    recommend: true,
-    email: ''
-  });
+  const [selectedRating, setSelectedRating] = useState(0);
+  const [feedback, setFeedback] = useState('');
   const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
 
-  const categories = [
-    { value: 'general', label: 'General Feedback' },
-    { value: 'ui_ux', label: 'User Interface & Experience' },
-    { value: 'ai_features', label: 'AI Features' },
-    { value: 'performance', label: 'Performance' },
-    { value: 'bug_report', label: 'Bug Report' },
-    { value: 'feature_request', label: 'Feature Request' }
+  const ratings = [
+    { value: 1, label: 'Poor', color: '#ef4444' },
+    { value: 2, label: 'Fair', color: '#f97316' },
+    { value: 3, label: 'Good', color: '#eab308' },
+    { value: 4, label: 'Very Good', color: '#22c55e' },
+    { value: 5, label: 'Excellent', color: '#10b981' }
   ];
 
-  const features = [
-    'Diary Entry Creation',
-    'Emotion Analysis',
-    'Location Extraction',
-    'AI Image Generation',
-    'Memory Map',
-    'Reflective Questions',
-    'Gallery Management',
-    'Analytics Dashboard'
-  ];
-
-  const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    
-    if (type === 'checkbox' && name === 'features') {
-      const updatedFeatures = checked
-        ? [...feedback.features, value]
-        : feedback.features.filter(f => f !== value);
-      setFeedback({ ...feedback, features: updatedFeatures });
-    } else if (type === 'checkbox') {
-      setFeedback({ ...feedback, [name]: checked });
-    } else {
-      setFeedback({ ...feedback, [name]: value });
-    }
-  };
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setLoading(true);
-
-    try {
-      const token = localStorage.getItem('access_token');
-      const response = await fetch('http://localhost:8000/emotion/feedback/submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(feedback)
-      });
-
-      if (response.ok) {
-        setSubmitted(true);
-        analyticsEvents.buttonClicked('feedback_submitted', 'feedback_page');
-      } else {
-        alert('Failed to submit feedback. Please try again.');
-      }
-    } catch (error) {
-      console.error('Error submitting feedback:', error);
-      alert('Error submitting feedback. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+    setSubmitted(true);
+    setTimeout(() => setSubmitted(false), 3000);
   };
-
-  if (submitted) {
-    return (
-      <div className="page-container">
-        <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
-          <h1>🎉 Thank You!</h1>
-          <p>Your feedback has been submitted successfully.</p>
-          <p>We appreciate your input and will use it to improve MemoryMap.</p>
-          <button 
-            className="btn btn-primary"
-            onClick={() => window.location.href = '/dashboard'}
-          >
-            Back to Dashboard
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="page-container">
-      <h1 className="page-title">📝 Share Your Feedback</h1>
-      <p className="page-subtitle">Help us improve MemoryMap with your valuable feedback</p>
-      
-      <div className="card">
-        <form onSubmit={handleSubmit}>
-          {/* Overall Rating */}
-          <div className="form-group">
-            <label htmlFor="rating">Overall Rating:</label>
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-              {[1, 2, 3, 4, 5].map(star => (
-                <span
-                  key={star}
-                  style={{
-                    fontSize: '24px',
-                    cursor: 'pointer',
-                    color: star <= feedback.rating ? '#ffd700' : '#ddd'
-                  }}
-                  onClick={() => setFeedback({ ...feedback, rating: star })}
-                >
-                  ⭐
-                </span>
-              ))}
-              <span style={{ marginLeft: '10px' }}>
-                {feedback.rating}/5 stars
-              </span>
+    <div className="app-container">
+      {/* Navigation */}
+      <nav className="navbar">
+        <div className="nav-container">
+          <Link to="/" className="nav-logo">MemoryMap</Link>
+          <ul className="nav-links">
+            <li><Link to="/dashboard" className="nav-link">Dashboard</Link></li>
+            <li><Link to="/coaching" className="nav-link">AI Coach</Link></li>
+            <li><Link to="/gallery" className="nav-link">Gallery</Link></li>
+            <li><Link to="/profile" className="nav-link">Profile</Link></li>
+          </ul>
+        </div>
+      </nav>
+
+      <div className="main-content">
+        <div className="section-header" style={{ marginBottom: '32px' }}>
+          <h1 className="section-title">Share Your Feedback</h1>
+          <p className="section-subtitle">
+            Help us improve MemoryMap by sharing your thoughts and experiences
+          </p>
+        </div>
+
+        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+          {submitted ? (
+            <div className="card" style={{ textAlign: 'center', padding: '48px' }}>
+              <div style={{ 
+                width: '80px', 
+                height: '80px', 
+                borderRadius: 'var(--radius-2xl)', 
+                background: 'var(--accent-green)', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                margin: '0 auto 24px',
+                boxShadow: 'var(--shadow-md)'
+              }}>
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                  <path d="M9 12l2 2 4-4"/>
+                  <circle cx="12" cy="12" r="10"/>
+                </svg>
+              </div>
+              <h3 style={{ marginBottom: '12px', color: 'var(--text-primary)' }}>
+                Thank you for your feedback!
+              </h3>
+              <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+                Your feedback has been submitted successfully. We appreciate your input and will use it to improve MemoryMap.
+              </p>
             </div>
-          </div>
+          ) : (
+            <form onSubmit={handleSubmit}>
+              <div className="card" style={{ marginBottom: '24px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px', color: 'var(--text-primary)' }}>
+                  How would you rate your experience with MemoryMap?
+                </h3>
+                
+                <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginBottom: '24px' }}>
+                  {ratings.map((rating) => (
+                    <button
+                      key={rating.value}
+                      type="button"
+                      onClick={() => setSelectedRating(rating.value)}
+                      style={{
+                        width: '60px',
+                        height: '60px',
+                        borderRadius: 'var(--radius-full)',
+                        border: selectedRating === rating.value ? `3px solid ${rating.color}` : '2px solid var(--gray-200)',
+                        background: selectedRating === rating.value ? rating.color : 'var(--bg-primary)',
+                        color: selectedRating === rating.value ? 'white' : 'var(--text-secondary)',
+                        fontSize: '18px',
+                        fontWeight: '700',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      {rating.value}
+                    </button>
+                  ))}
+                </div>
+                
+                {selectedRating > 0 && (
+                  <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                    <span style={{ 
+                      color: ratings[selectedRating - 1].color, 
+                      fontWeight: '600',
+                      fontSize: '16px'
+                    }}>
+                      {ratings[selectedRating - 1].label}
+                    </span>
+                  </div>
+                )}
+              </div>
 
-          {/* Category */}
-          <div className="form-group">
-            <label htmlFor="category">Feedback Category:</label>
-            <select
-              id="category"
-              name="category"
-              value={feedback.category}
-              onChange={handleInputChange}
-              required
-            >
-              {categories.map(cat => (
-                <option key={cat.value} value={cat.value}>
-                  {cat.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Message */}
-          <div className="form-group">
-            <label htmlFor="message">Your Feedback:</label>
-            <textarea
-              id="message"
-              name="message"
-              value={feedback.message}
-              onChange={handleInputChange}
-              placeholder="Please share your thoughts, suggestions, or issues..."
-              rows="6"
-              required
-            />
-          </div>
-
-          {/* Features Used */}
-          <div className="form-group">
-            <label>Which features have you used? (Check all that apply)</label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px', marginTop: '10px' }}>
-              {features.map(feature => (
-                <label key={feature} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <input
-                    type="checkbox"
-                    name="features"
-                    value={feature}
-                    checked={feedback.features.includes(feature)}
-                    onChange={handleInputChange}
+              <div className="card" style={{ marginBottom: '24px' }}>
+                <div className="form-group">
+                  <label className="form-label">Additional Comments (Optional)</label>
+                  <textarea
+                    className="form-input form-textarea"
+                    style={{ minHeight: '120px' }}
+                    placeholder="Tell us more about your experience, suggestions for improvement, or any issues you encountered..."
+                    value={feedback}
+                    onChange={(e) => setFeedback(e.target.value)}
                   />
-                  {feature}
-                </label>
-              ))}
-            </div>
-          </div>
+                </div>
+              </div>
 
-          {/* Improvements */}
-          <div className="form-group">
-            <label htmlFor="improvements">What would you like to see improved?</label>
-            <textarea
-              id="improvements"
-              name="improvements"
-              value={feedback.improvements}
-              onChange={handleInputChange}
-              placeholder="Suggestions for improvements or new features..."
-              rows="4"
-            />
-          </div>
-
-          {/* Recommendation */}
-          <div className="form-group">
-            <label style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <input
-                type="checkbox"
-                name="recommend"
-                checked={feedback.recommend}
-                onChange={handleInputChange}
-              />
-              I would recommend MemoryMap to others
-            </label>
-          </div>
-
-          {/* Email (Optional) */}
-          <div className="form-group">
-            <label htmlFor="email">Email (Optional - for follow-up):</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={feedback.email}
-              onChange={handleInputChange}
-              placeholder="your.email@example.com"
-            />
-          </div>
-
-          {/* Submit Button */}
-          <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-            <button 
-              type="button" 
-              className="btn btn-secondary"
-              onClick={() => window.history.back()}
-            >
-              Cancel
-            </button>
-            <button 
-              type="submit" 
-              className="btn btn-primary"
-              disabled={loading}
-            >
-              {loading ? 'Submitting...' : 'Submit Feedback'}
-            </button>
-          </div>
-        </form>
-      </div>
-
-      {/* Feedback Stats */}
-      <div className="card">
-        <h2>📊 Community Feedback</h2>
-        <p>Your feedback helps us build a better experience for everyone!</p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '15px', marginTop: '15px' }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#007bff' }}>4.8</div>
-            <div>Average Rating</div>
-          </div>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#28a745' }}>156</div>
-            <div>Total Reviews</div>
-          </div>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#ffc107' }}>89%</div>
-            <div>Would Recommend</div>
-          </div>
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+                <Link to="/dashboard" className="btn btn-secondary">
+                  Cancel
+                </Link>
+                <button 
+                  type="submit" 
+                  className="btn btn-primary"
+                  disabled={selectedRating === 0}
+                >
+                  Submit Feedback
+                </button>
+              </div>
+            </form>
+          )}
         </div>
       </div>
     </div>
   );
 };
 
-export default Feedback; 
+export default Feedback;

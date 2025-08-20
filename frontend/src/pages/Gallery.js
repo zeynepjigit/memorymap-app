@@ -1,84 +1,71 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { getUserImages } from '../services/api';
 
 const Gallery = () => {
-  // Sample gallery data - in a real app, this would come from an API
-  const galleryItems = [
-    {
-      id: 1,
-      title: "Sunset in Santorini",
-      location: "Santorini, Greece",
-      date: "2024-01-15",
-      description: "The golden hour painted the white buildings in warm hues as the sun dipped into the Aegean Sea."
-    },
-    {
-      id: 2,
-      title: "Cherry Blossoms in Tokyo",
-      location: "Tokyo, Japan",
-      date: "2024-01-12",
-      description: "Spring brought a magical transformation to the bustling streets with delicate pink petals dancing in the breeze."
-    },
-    {
-      id: 3,
-      title: "Coffee Culture in Vienna",
-      location: "Vienna, Austria",
-      date: "2024-01-10",
-      description: "The timeless atmosphere of traditional Viennese coffeehouses where history and modernity meet."
-    },
-    {
-      id: 4,
-      title: "Northern Lights in Iceland",
-      location: "Reykjavik, Iceland",
-      date: "2024-01-08",
-      description: "Nature's own light show painted the Arctic sky in brilliant greens and blues."
-    },
-    {
-      id: 5,
-      title: "Tuscany Vineyards",
-      location: "Tuscany, Italy",
-      date: "2024-01-05",
-      description: "Rolling hills covered with vineyards stretched as far as the eye could see in the golden Italian countryside."
-    },
-    {
-      id: 6,
-      title: "Moroccan Bazaar",
-      location: "Marrakech, Morocco",
-      date: "2024-01-03",
-      description: "A sensory overload of colors, spices, and sounds in the vibrant souks of the medina."
-    }
-  ];
+  const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      const result = await getUserImages();
+      if (result.success && result.data.images) {
+        setImages(result.data.images);
+        setError(null);
+      } else {
+        setError(result.error || 'Görseller alınamadı');
+      }
+      setLoading(false);
+    })();
+  }, []);
 
   return (
-    <div className="gallery-container">
-      <div className="dashboard-header">
-        <h1 className="dashboard-title">Memory Gallery</h1>
-        <p style={{ color: 'var(--text-secondary)', margin: 0 }}>
-          Browse through your collection of travel memories
-        </p>
-      </div>
+    <div className="app-container">
+      {/* Navigation */}
+      <nav className="navbar">
+        <div className="nav-container">
+          <Link to="/" className="nav-logo">MemoryMap</Link>
+          <ul className="nav-links">
+            <li><Link to="/dashboard" className="nav-link">Dashboard</Link></li>
+            <li><Link to="/coaching" className="nav-link">AI Coach</Link></li>
+            <li><Link to="/gallery" className="nav-link" style={{ color: 'var(--primary-purple)' }}>Gallery</Link></li>
+            <li><Link to="/profile" className="nav-link">Profile</Link></li>
+          </ul>
+        </div>
+      </nav>
 
-      {galleryItems.length > 0 ? (
-        <div className="gallery-grid">
-          {galleryItems.map(item => (
-            <div key={item.id} className="gallery-item">
-              <div className="gallery-image">
-                📸
-              </div>
-              <div className="gallery-content">
-                <div className="entry-date">{new Date(item.date).toLocaleDateString()}</div>
-                <h3 className="gallery-title">{item.title}</h3>
-                <div className="badge badge-secondary mb-4">{item.location}</div>
-                <p className="gallery-description">{item.description}</p>
-              </div>
+      <div className="main-content">
+        <div className="section-header" style={{ marginBottom: '32px' }}>
+          <h1 className="section-title">Memory Gallery</h1>
+          <p className="section-subtitle">
+            Visual representations of your memories and AI-generated artwork
+          </p>
+        </div>
+
+        <div style={{ padding: 16 }}>
+          {loading ? (
+            <div className="card">Yükleniyor...</div>
+          ) : error ? (
+            <div className="card" style={{ color: 'crimson' }}>{error}</div>
+          ) : images.length === 0 ? (
+            <div className="card" style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 36 }}>📸</div>
+              Henüz görsel yok
             </div>
-          ))}
+          ) : (
+            <div className="grid-3">
+              {images.map((img, i) => (
+                <div key={i} className="card card-elevated">
+                  <img src={img.url} alt={img.filename} style={{ width: '100%', borderRadius: 12, marginBottom: 8 }} />
+                  <div style={{ fontWeight: 700 }}>{img.filename}</div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-      ) : (
-        <div className="empty-state">
-          <div className="empty-state-icon">📸</div>
-          <h3>No Memories Yet</h3>
-          <p>Start creating journal entries to build your memory gallery.</p>
-        </div>
-      )}
+      </div>
     </div>
   );
 };
