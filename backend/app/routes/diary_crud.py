@@ -71,7 +71,7 @@ async def create_diary_entry(entry: DiaryEntryCreate, current_user: CurrentUser 
             # 2) Add to vector DB for RAG insights (best-effort)
             try:
                 date_str = datetime.utcnow().strftime('%Y-%m-%d')
-                rag_coaching_service.add_diary_entry(
+                rag_result = rag_coaching_service.add_diary_entry(
                     content=entry.content,
                     emotion=(entry_data.get("mood") or detected_emotion or "neutral"),
                     date=date_str,
@@ -79,8 +79,10 @@ async def create_diary_entry(entry: DiaryEntryCreate, current_user: CurrentUser 
                     tags=[],
                     user_id=user_id
                 )
-            except Exception:
-                pass
+                if not rag_result.get("success"):
+                    print(f"⚠️ RAG add failed: {rag_result.get('error', 'Unknown error')}")
+            except Exception as e:
+                print(f"⚠️ RAG add exception: {str(e)}")
 
             # 3) Rüya ise görsel üretim (best-effort)
             try:
@@ -178,9 +180,20 @@ async def update_diary_entry(entry_id: str, entry_update: DiaryEntryUpdate):
         raise HTTPException(status_code=500, detail=f"Failed to update diary entry: {str(e)}")
 
 @router.delete("/{entry_id}", response_model=dict)
-async def delete_diary_entry(entry_id: str):
+async def delete_diary_entry(entry_id: str, current_user: CurrentUser = Depends(get_current_user)):
     """Günlük girişini sil"""
     try:
+        # Authenticated user
+        user_id = current_user.id
+        
+        # Önce entry'nin bu kullanıcıya ait olduğunu kontrol et
+        entry_result = firestore_service.get_diary_entry(entry_id)
+        if not entry_result["success"]:
+            raise HTTPException(status_code=404, detail="Diary entry not found")
+        
+        if entry_result["entry"]["user_id"] != user_id:
+            raise HTTPException(status_code=403, detail="Not authorized to delete this entry")
+        
         result = firestore_service.delete_diary_entry(entry_id)
         
         if result["success"]:

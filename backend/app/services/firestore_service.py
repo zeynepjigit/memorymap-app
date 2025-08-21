@@ -289,16 +289,16 @@ class FirestoreService:
 
             demo_entries: List[Dict[str, Any]] = [
                 {
-                    "title": "Welcome to MemoryMap",
-                    "content": "This is a demo entry to help you get started.",
-                    "location": "",
-                    "mood": "neutral",
+                    "title": "Hoş Geldiniz!",
+                    "content": "MemoryMap'e hoş geldiniz! Bu demo hesabında anlamlı günlük girdileri bulabilirsiniz. Kendi günlük girdilerinizi oluşturmaya başlayabilirsiniz.",
+                    "location": "İstanbul",
+                    "mood": "Meraklı",
                 },
                 {
-                    "title": "A calm morning",
-                    "content": "Enjoyed a calm morning walk and felt refreshed.",
-                    "location": "",
-                    "mood": "positive",
+                    "title": "Güzel Bir Sabah",
+                    "content": "Bugün güneşli bir sabahla uyandım. Kahvemi içerken günün planlarını yaptım. Bu tür sakin anlar hayatın en güzel yanlarından biri.",
+                    "location": "Ev",
+                    "mood": "Huzurlu",
                 },
             ]
 

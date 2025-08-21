@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from ..services.emotion_analysis import analyze_emotion
 from ..services.location_extraction import extract_locations
 from ..services.location_extraction import get_coordinates
-from ..services.image_generation import generate_image_from_prompt, create_prompt_from_diary_entry
+
 from ..services.firebase import upload_image_to_storage, delete_image_from_storage, list_user_images
 from ..utils.auth import get_current_user
 import base64
@@ -57,41 +57,7 @@ def geocode_location(req: GeocodeRequest):
         raise HTTPException(status_code=404, detail="Location not found")
     return coords 
 
-class ImageGenerationRequest(BaseModel):
-    diary_text: str
-    emotion: str = None
-    locations: list = []
-
-@router.post("/image/generate")
-def generate_image(req: ImageGenerationRequest):
-    if not req.diary_text or len(req.diary_text.strip()) == 0:
-        raise HTTPException(status_code=400, detail="Diary text is required")
-    
-    try:
-        # Günlük girdisinden prompt oluştur
-        prompt = create_prompt_from_diary_entry(
-            req.diary_text, 
-            req.emotion, 
-            req.locations
-        )
-        
-        # Görsel üret
-        result = generate_image_from_prompt(prompt)
-        
-        if result["success"]:
-            return {
-                "success": True,
-                "image_base64": result["image_base64"],
-                "prompt": result["prompt"],
-                "message": "Image generated successfully"
-            }
-        else:
-            raise HTTPException(status_code=500, detail=result["error"])
-            
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Image generation failed: {str(e)}") 
+ 
 
 class ImageSaveRequest(BaseModel):
     image_base64: str

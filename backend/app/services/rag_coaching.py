@@ -385,5 +385,16 @@ class RAGCoachingService:
         else:
             return "Günlük girdilerinizi analiz ederek size özel tavsiyeler sunmaya çalışıyorum. Daha spesifik sorular sorarsanız, size daha detaylı öneriler verebilirim."
 
+    def clear_demo_data(self) -> Dict:
+        """Demo verilerini temizler"""
+        try:
+            # Demo user'a ait tüm verileri sil
+            self.collection.delete(
+                where={"user_id": "demo_user"}
+            )
+            return {"success": True, "message": "Demo data cleared successfully"}
+        except Exception as e:
+            return {"success": False, "error": f"Failed to clear demo data: {str(e)}"}
+
 # Global instance
 rag_coaching_service = RAGCoachingService()
