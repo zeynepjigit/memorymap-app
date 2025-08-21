@@ -13,7 +13,7 @@ SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
 # Şifre hashleme
 def hash_password(password: str) -> str:
@@ -40,6 +40,13 @@ def decode_access_token(token: str):
         return None
 
 # Giriş yapmış kullanıcıyı döndüren dependency
+class CurrentUser:
+    def __init__(self, id: str, email: str, name: str):
+        self.id = id
+        self.email = email
+        self.name = name
+
+
 def get_current_user(token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -51,17 +58,18 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         raise credentials_exception
     # Firestore ile uyumlu olması için user_id'yi string'e çevirme
     user_id_str = str(payload["user_id"])
-    # Firestore'da kullanıcıyı bulma mantığı burada olmalı
-    # Örneğin:
-    # from firebase_admin import firestore
-    # db = firestore.client()
-    # user_ref = db.collection("users").document(user_id_str)
-    # user_doc = user_ref.get()
-    # if user_doc.exists:
-    #     user_data = user_doc.to_dict()
-    #     return user_data # Firestore'da kullanıcı bilgileri
-    # else:
-    #     raise credentials_exception
-    # Bu kısım Firestore ile uyumlu hale getirilmelidir.
-    # Şimdilik placeholder olarak döndürüyoruz.
-    return {"id": user_id_str, "username": "test_user"} 
+
+    # Firestore'dan kullanıcıyı çek
+    try:
+        from ..services.firestore_service import firestore_service  # lazy import to avoid circular
+        user_result = firestore_service.get_user_by_id(user_id_str)
+        if not user_result.get("success"):
+            raise credentials_exception
+        user = user_result.get("user")
+        if not user:
+            raise credentials_exception
+        # İsim alanı olmayabilir; username veya email kullan
+        display_name = user.get("username") or user.get("full_name") or user.get("email") or "user"
+        return CurrentUser(id=user_id_str, email=user.get("email", ""), name=display_name)
+    except Exception:
+        raise credentials_exception

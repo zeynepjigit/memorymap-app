@@ -8,23 +8,27 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import DiaryEntry from './pages/DiaryEntry';
 import CoachingDashboard from './pages/CoachingDashboard';
-import Gallery from './pages/Gallery';
+import EmotionalMap from './pages/EmotionalMap';
+import Memories from './pages/Memories';
+import Quotes from './pages/Quotes';
 import Profile from './pages/Profile';
 import Feedback from './pages/Feedback';
 import FeedbackForm from './pages/FeedbackForm';
-import DreamVisualization from './pages/DreamVisualization';
 import MapView from './pages/MapView';
 import NotificationSettings from './pages/NotificationSettings';
 import ApiTest from './pages/ApiTest';
 
 // Components
 import Header from './components/Header';
+import ErrorBoundary from './components/ErrorBoundary';
+import { motion } from 'framer-motion';
 
 function App() {
   return (
-    <Router>
-      <div className="App">
-        <Routes>
+    <ErrorBoundary>
+      <Router>
+        <div className="App">
+          <Routes>
             {/* Ana Sayfa */}
             <Route 
               path="/" 
@@ -113,7 +117,7 @@ function App() {
             />
 
             <Route 
-              path="/gallery" 
+              path="/emotional-map" 
               element={
                 <motion.div
                   initial={{ opacity: 0, x: 20 }}
@@ -121,7 +125,35 @@ function App() {
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <Gallery />
+                  <EmotionalMap />
+                </motion.div>
+              } 
+            />
+
+            <Route 
+              path="/memories" 
+              element={
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Memories />
+                </motion.div>
+              } 
+            />
+
+            <Route 
+              path="/quotes" 
+              element={
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Quotes />
                 </motion.div>
               } 
             />
@@ -169,19 +201,7 @@ function App() {
               } 
             />
 
-            <Route 
-              path="/dream-visualization" 
-              element={
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <DreamVisualization />
-                </motion.div>
-              } 
-            />
+            {/* Dream Visualization removed */}
 
             <Route 
               path="/map-view" 
@@ -260,9 +280,10 @@ function App() {
                 </motion.div>
               } 
             />
-        </Routes>
-      </div>
-    </Router>
+          </Routes>
+        </div>
+      </Router>
+    </ErrorBoundary>
   );
 }
 

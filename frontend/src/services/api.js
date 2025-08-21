@@ -1,5 +1,14 @@
 const API_BASE_URL = 'http://127.0.0.1:8000';
 
+// Auth helpers
+const getToken = () => {
+  try { return localStorage.getItem('token'); } catch { return null; }
+};
+const withAuth = (headers = {}) => {
+  const token = getToken();
+  return token ? { ...headers, Authorization: `Bearer ${token}` } : headers;
+};
+
 // API service functions
 
 // Backend bağlantısını test et
@@ -31,9 +40,7 @@ export const createDiaryEntry = async (entryData) => {
   try {
     const response = await fetch(`${API_BASE_URL}/api/v1/diary/`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: withAuth({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({
         title: entryData.title,
         content: entryData.content,
@@ -57,7 +64,9 @@ export const createDiaryEntry = async (entryData) => {
 // Günlük girişlerini listele
 export const getDiaryEntries = async (limit = 10) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/v1/diary/?limit=${limit}`);
+    const response = await fetch(`${API_BASE_URL}/api/v1/diary/?limit=${limit}`, {
+      headers: withAuth({ 'Content-Type': 'application/json' }),
+    });
     const data = await response.json();
     
     if (!response.ok) {
@@ -73,7 +82,9 @@ export const getDiaryEntries = async (limit = 10) => {
 // Tekil günlük girişi getir
 export const getDiaryEntry = async (entryId) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/v1/diary/${entryId}`);
+    const response = await fetch(`${API_BASE_URL}/api/v1/diary/${entryId}`, {
+      headers: withAuth({ 'Content-Type': 'application/json' }),
+    });
     const data = await response.json();
     
     if (!response.ok) {
@@ -91,9 +102,7 @@ export const updateDiaryEntry = async (entryId, updateData) => {
   try {
     const response = await fetch(`${API_BASE_URL}/api/v1/diary/${entryId}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: withAuth({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(updateData)
     });
     
@@ -113,7 +122,8 @@ export const updateDiaryEntry = async (entryId, updateData) => {
 export const deleteDiaryEntry = async (entryId) => {
   try {
     const response = await fetch(`${API_BASE_URL}/api/v1/diary/${entryId}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: withAuth({ 'Content-Type': 'application/json' }),
     });
     
     const data = await response.json();
@@ -133,9 +143,7 @@ export const analyzeEmotion = async (text) => {
   try {
     const response = await fetch(`${API_BASE_URL}/api/v1/emotion/analyze`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: withAuth({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ text })
     });
     const data = await response.json();
@@ -153,9 +161,7 @@ export const extractLocation = async (text) => {
   try {
     const response = await fetch(`${API_BASE_URL}/api/v1/location/extract`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: withAuth({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ text })
     });
     const data = await response.json();
@@ -173,9 +179,7 @@ export const getCoordinates = async (locationName) => {
   try {
     const response = await fetch(`${API_BASE_URL}/api/v1/location/coordinates`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: withAuth({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ location_name: locationName })
     });
     const data = await response.json();
@@ -193,9 +197,7 @@ export const generateImageFromDiary = async ({ diary_text, emotion, locations })
   try {
     const response = await fetch(`${API_BASE_URL}/emotion/image/generate`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: withAuth({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ diary_text, emotion, locations })
     });
     const data = await response.json();
@@ -213,9 +215,7 @@ export const saveImageToStorage = async ({ image_base64, title }) => {
   try {
     const response = await fetch(`${API_BASE_URL}/emotion/image/save`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: withAuth({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ image_base64, title })
     });
     const data = await response.json();
@@ -231,15 +231,17 @@ export const saveImageToStorage = async ({ image_base64, title }) => {
 // Kullanıcının galeri görsellerini al
 export const getUserImages = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/emotion/images/list`, {
-      method: 'GET',
-      credentials: 'include',
+    // Build images list from diary entries' media.image_url
+    const response = await fetch(`${API_BASE_URL}/api/v1/diary/?limit=50`, {
+      headers: withAuth({ 'Content-Type': 'application/json' }),
     });
     const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.detail || 'Galeri görselleri alınamadı');
-    }
-    return { success: true, data };
+    if (!response.ok) throw new Error(data.detail || 'Entries not available');
+    const entries = data.entries || [];
+    const images = entries
+      .map((e) => ({ url: e?.media?.image_url, filename: e.title || e.id }))
+      .filter((i) => i.url);
+    return { success: true, data: { images } };
   } catch (error) {
     return { success: false, error: error.message };
   }
@@ -250,7 +252,7 @@ export const getPersonalizedMotivationCard = async () => {
   try {
     const response = await fetch(`${API_BASE_URL}/emotion/notifications/personalized`, {
       method: 'POST',
-      credentials: 'include',
+      headers: withAuth({ 'Content-Type': 'application/json' }),
     });
     const data = await response.json();
     if (!response.ok) {
@@ -267,7 +269,7 @@ export const getUserAnalytics = async (days = 30) => {
   try {
     const response = await fetch(`${API_BASE_URL}/emotion/analytics/user?days=${days}`, {
       method: 'GET',
-      credentials: 'include',
+      headers: withAuth({ 'Content-Type': 'application/json' }),
     });
     const data = await response.json();
     if (!response.ok) {
@@ -337,10 +339,7 @@ export const apiService = {
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        // credentials: 'include',  // Demo için kaldırıldı
+        headers: withAuth({ 'Content-Type': 'application/json' }),
       });
       const data = await response.json();
       return data;
@@ -354,10 +353,7 @@ export const apiService = {
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        // credentials: 'include',  // Demo için kaldırıldı
+        headers: withAuth({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(body),
       });
       const data = await response.json();
@@ -372,10 +368,7 @@ export const apiService = {
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        // credentials: 'include',  // Demo için kaldırıldı
+        headers: withAuth({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(body),
       });
       const data = await response.json();
@@ -390,10 +383,7 @@ export const apiService = {
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        // credentials: 'include',  // Demo için kaldırıldı
+        headers: withAuth({ 'Content-Type': 'application/json' }),
       });
       const data = await response.json();
       return data;
@@ -413,7 +403,15 @@ export const queryDiaryEntries = async (question, topK = 5) => {
 };
 
 export const getPersonalizedAdvice = async (question) => {
-  return apiService.post('/coaching/advice', { question });
+  console.log('API: getPersonalizedAdvice called with:', question.substring(0, 100) + '...');
+  try {
+    const result = await apiService.post('/api/v1/coach/chat', { message: question });
+    console.log('API: getPersonalizedAdvice result:', result);
+    return result;
+  } catch (error) {
+    console.error('API: getPersonalizedAdvice error:', error);
+    return { success: false, error: error.message };
+  }
 };
 
 export const getEmotionalInsights = async () => {
@@ -423,3 +421,120 @@ export const getEmotionalInsights = async () => {
 export const getDemoData = async () => {
   return apiService.get('/coaching/demo-data');
 }; 
+
+// Smart Editor
+export const editorSuggest = async ({ text, intent, target_tone }) => {
+  console.log('API: editorSuggest called with:', { text: text.substring(0, 100) + '...', intent, target_tone });
+  try {
+    const result = await apiService.post('/api/v1/editor/suggest', { text, intent, target_tone });
+    console.log('API: editorSuggest result:', result);
+    return result;
+  } catch (error) {
+    console.error('API: editorSuggest error:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+
+// Profile API
+export const getMyProfile = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/profile/me`, {
+      method: 'GET',
+      headers: withAuth({ 'Content-Type': 'application/json' }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || 'Failed to load profile');
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+export const updateMyProfile = async (update) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/profile/me`, {
+      method: 'PUT',
+      headers: withAuth({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify(update),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || 'Failed to update profile');
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+// Auth API
+export const authLogin = async ({ email, password }) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || 'Login failed');
+    return { success: true, ...data };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+export const authRegister = async ({ email, username, password }) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, username, password })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || 'Registration failed');
+    return { success: true, ...data };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+// Quote Generation API Functions
+export const generateInspirationalQuote = async ({ emotion, diary_content = "" }) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/quotes/generate`, {
+      method: 'POST',
+      headers: withAuth({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ emotion, diary_content })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || 'Failed to generate quote');
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+export const getQuoteHistory = async (limit = 10) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/quotes/history?limit=${limit}`, {
+      headers: withAuth({ 'Content-Type': 'application/json' }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || 'Failed to get quote history');
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+export const getEmotionColors = async (emotion) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/quotes/colors/${emotion}`, {
+      headers: withAuth({ 'Content-Type': 'application/json' }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || 'Failed to get emotion colors');
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};

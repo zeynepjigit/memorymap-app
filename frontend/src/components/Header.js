@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { KineticText, MagneticElement } from './FuturisticUI';
+import MagneticElement from './MagneticElement';
+import KineticText from './KineticText';
 
 const Header = () => {
   const location = useLocation();

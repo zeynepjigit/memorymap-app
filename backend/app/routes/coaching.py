@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from typing import List, Optional
 from ..services.rag_coaching import rag_coaching_service
-from ..utils.auth import get_current_user
+from ..utils.auth import get_current_user, CurrentUser
 from ..models.user import User
 
 router = APIRouter(prefix="/coaching", tags=["coaching"])
@@ -58,8 +58,8 @@ class ExplainableAIResponse(BaseModel):
 
 @router.post("/add-entry", response_model=DiaryEntryResponse)
 async def add_diary_entry(
-    entry: DiaryEntryRequest
-    # current_user: User = Depends(get_current_user)  # Demo için kaldırıldı
+    entry: DiaryEntryRequest,
+    current_user: CurrentUser = Depends(get_current_user)
 ):
     """Yeni günlük girdisi ekler ve vektör veritabanına kaydeder"""
     try:
@@ -68,7 +68,8 @@ async def add_diary_entry(
             emotion=entry.emotion,
             date=entry.date,
             location=entry.location,
-            tags=entry.tags
+            tags=entry.tags,
+            user_id=current_user.id
         )
         
         if result["success"]:
@@ -85,14 +86,15 @@ async def add_diary_entry(
 
 @router.post("/query", response_model=QueryResponse)
 async def query_diary_entries(
-    query: QueryRequest
-    # current_user: User = Depends(get_current_user)  # Demo için kaldırıldı
+    query: QueryRequest,
+    current_user: CurrentUser = Depends(get_current_user)
 ):
     """Günlük girdilerini sorgular"""
     try:
         result = rag_coaching_service.query_diary(
             question=query.question,
-            top_k=query.top_k
+            top_k=query.top_k,
+            user_id=current_user.id
         )
         
         if result["success"]:
@@ -109,8 +111,8 @@ async def query_diary_entries(
 
 @router.post("/advice", response_model=AdviceResponse)
 async def get_personalized_advice(
-    request: AdviceRequest
-    # current_user: User = Depends(get_current_user)  # Demo için kaldırıldı
+    request: AdviceRequest,
+    current_user: CurrentUser = Depends(get_current_user)
 ):
     """Kişiselleştirilmiş tavsiye alır"""
     try:
@@ -133,12 +135,12 @@ async def get_personalized_advice(
 
 @router.get("/insights", response_model=InsightsResponse)
 async def get_emotional_insights(
-    # current_user: User = Depends(get_current_user)  # Demo için kaldırıldı
+    current_user: CurrentUser = Depends(get_current_user)
 ):
     """Duygu durumu analizi ve içgörüler alır"""
     try:
         result = rag_coaching_service.get_emotional_insights(
-            user_id="demo_user"  # Demo için sabit user ID
+            user_id=current_user.id
         )
         
         if result["success"]:

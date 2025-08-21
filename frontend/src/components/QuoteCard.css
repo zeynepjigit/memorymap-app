@@ -1,0 +1,389 @@
+.quote-card {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  min-height: 300px;
+  border-radius: 20px;
+  padding: 32px;
+  margin: 20px auto;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.quote-card-enter {
+  animation: quoteCardEnter 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes quoteCardEnter {
+  0% {
+    transform: translateY(50px) scale(0.9);
+    opacity: 0;
+  }
+  50% {
+    transform: translateY(-10px) scale(1.02);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.quote-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15), 0 6px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+.quote-card-decoration {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.quote-card-accent {
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  border-radius: 50%;
+  opacity: 0.05;
+  transform: rotate(45deg);
+}
+
+.quote-card-pattern {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.03;
+  background-size: 20px 20px;
+}
+
+.quote-card-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+}
+
+.quote-icon {
+  margin-bottom: 24px;
+  opacity: 0.7;
+  animation: quoteIconFloat 3s ease-in-out infinite;
+}
+
+@keyframes quoteIconFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.quote-text {
+  font-size: 1.5rem;
+  font-weight: 500;
+  line-height: 1.6;
+  margin: 0 0 24px 0;
+  font-style: italic;
+  letter-spacing: 0.5px;
+  animation: quoteTextFadeIn 1s ease-out 0.3s both;
+}
+
+@keyframes quoteTextFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.quote-author {
+  font-size: 1.1rem;
+  font-weight: 600;
+  font-style: normal;
+  margin: 0 0 16px 0;
+  opacity: 0.8;
+  animation: quoteAuthorFadeIn 1s ease-out 0.6s both;
+}
+
+@keyframes quoteAuthorFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 0.8;
+    transform: translateY(0);
+  }
+}
+
+.quote-emotion-badge {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: white;
+  margin: 16px 0;
+  animation: badgePulse 2s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.quote-timestamp {
+  font-size: 0.85rem;
+  margin-top: 16px;
+  opacity: 0.6;
+  font-weight: 500;
+}
+
+.quote-card-actions {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 32px;
+  animation: actionsFadeIn 1s ease-out 0.9s both;
+}
+
+@keyframes actionsFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.quote-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  min-width: 100px;
+  justify-content: center;
+}
+
+.quote-action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.quote-action-btn:active {
+  transform: translateY(0);
+}
+
+.save-btn {
+  transition: all 0.3s ease;
+}
+
+.save-btn.saved {
+  animation: savedPulse 0.6s ease-out;
+}
+
+@keyframes savedPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.close-btn {
+  transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+.quote-particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.quote-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  opacity: 0.3;
+  animation: particleFloat 4s ease-in-out infinite;
+}
+
+.quote-particle:nth-child(1) {
+  top: 20%;
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.quote-particle:nth-child(2) {
+  top: 60%;
+  right: 15%;
+  animation-delay: 0.5s;
+}
+
+.quote-particle:nth-child(3) {
+  top: 30%;
+  right: 25%;
+  animation-delay: 1s;
+}
+
+.quote-particle:nth-child(4) {
+  bottom: 30%;
+  left: 20%;
+  animation-delay: 1.5s;
+}
+
+.quote-particle:nth-child(5) {
+  top: 80%;
+  left: 60%;
+  animation-delay: 2s;
+}
+
+.quote-particle:nth-child(6) {
+  bottom: 20%;
+  right: 30%;
+  animation-delay: 2.5s;
+}
+
+@keyframes particleFloat {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-20px) scale(1.2);
+    opacity: 0.6;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .quote-card {
+    max-width: 90%;
+    padding: 24px;
+    min-height: 250px;
+  }
+  
+  .quote-text {
+    font-size: 1.3rem;
+  }
+  
+  .quote-author {
+    font-size: 1rem;
+  }
+  
+  .quote-card-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .quote-action-btn {
+    width: 100%;
+    max-width: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  .quote-card {
+    padding: 20px;
+    min-height: 200px;
+  }
+  
+  .quote-text {
+    font-size: 1.1rem;
+  }
+  
+  .quote-author {
+    font-size: 0.9rem;
+  }
+  
+  .quote-emotion-badge {
+    font-size: 0.75rem;
+    padding: 4px 12px;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .quote-card {
+    backdrop-filter: blur(15px);
+  }
+  
+  .quote-card-pattern {
+    opacity: 0.05;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .quote-card {
+    border-width: 3px;
+  }
+  
+  .quote-action-btn {
+    border-width: 2px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .quote-card-enter,
+  .quote-card:hover,
+  .quote-icon,
+  .quote-text,
+  .quote-author,
+  .quote-emotion-badge,
+  .quote-card-actions,
+  .quote-particle,
+  .save-btn.saved {
+    animation: none;
+    transition: none;
+  }
+  
+  .quote-card:hover {
+    transform: none;
+  }
+}

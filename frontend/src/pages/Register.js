@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { authRegister, authLogin } from '../services/api';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -25,10 +26,21 @@ const Register = () => {
       return;
     }
     
-    // Demo registration
-    setTimeout(() => {
+    // Real registration -> auto login
+    const reg = await authRegister({ email: formData.email, username: formData.name || formData.email.split('@')[0], password: formData.password });
+    if (!reg.success) {
+      setError(reg.error || 'Registration failed');
+      setLoading(false);
+      return;
+    }
+
+    const login = await authLogin({ email: formData.email, password: formData.password });
+    if (login.success && login.access_token) {
+      try { localStorage.setItem('token', login.access_token); } catch {}
       navigate('/dashboard');
-    }, 1000);
+    } else {
+      navigate('/login');
+    }
   };
 
   return (

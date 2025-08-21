@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   addDiaryEntryToVectorDB, 
   getPersonalizedAdvice, 
@@ -53,10 +54,11 @@ const CoachingDashboard = () => {
       const response = await getPersonalizedAdvice(userMessage.message);
       if (response.success) {
         const aiMessage = {
-          message: response.advice,
+          message: response.answer || response.advice,
           isUser: false,
           timestamp: new Date().toLocaleTimeString(),
-          explainableData: response.explainable_ai || null
+          explainableData: response.explainable_ai || null,
+          sources: response.sources || []
         };
         setChatMessages(prev => [...prev, aiMessage]);
         if (response.explainable_ai) setExplainableData(response.explainable_ai);
@@ -104,13 +106,59 @@ const CoachingDashboard = () => {
     setShowExplanation(true);
   };
 
-  const suggestedPrompts = [
-    "How can I improve my emotional well-being?",
-    "What patterns do you see in my recent entries?",
-    "Give me advice for managing stress",
-    "Help me understand my mood changes",
-    "What are my most positive moments?"
-  ];
+  const getPersonalizedPrompts = () => {
+    const basePrompts = [
+      {
+        text: "How can I improve my emotional well-being?",
+        icon: "💚",
+        gradient: "linear-gradient(135deg, #34d399 0%, #10b981 100%)"
+      },
+      {
+        text: "What patterns do you see in my recent entries?",
+        icon: "📊",
+        gradient: "linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)"
+      },
+      {
+        text: "Give me advice for managing stress",
+        icon: "🧘‍♀️",
+        gradient: "linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%)"
+      },
+      {
+        text: "Help me understand my mood changes",
+        icon: "🌙",
+        gradient: "linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)"
+      },
+      {
+        text: "What are my most positive moments?",
+        icon: "✨",
+        gradient: "linear-gradient(135deg, #f472b6 0%, #ec4899 100%)"
+      }
+    ];
+
+    // Add personalized prompts based on user insights
+    if (insights && insights.most_common_emotions && insights.most_common_emotions.length > 0) {
+      const topEmotion = insights.most_common_emotions[0][0];
+      const personalizedPrompts = [
+        {
+          text: `Why do I experience ${topEmotion} feelings so often?`,
+          icon: "🤔",
+          gradient: "linear-gradient(135deg, #fb7185 0%, #e11d48 100%)"
+        },
+        {
+          text: `How can I build on my ${topEmotion} experiences?`,
+          icon: "🌱",
+          gradient: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)"
+        }
+      ];
+      
+      // Replace last two prompts with personalized ones
+      return [...basePrompts.slice(0, 3), ...personalizedPrompts];
+    }
+
+    return basePrompts;
+  };
+
+  const suggestedPrompts = getPersonalizedPrompts();
 
   return (
     <div className="app-container">
@@ -129,148 +177,763 @@ const CoachingDashboard = () => {
 
       <div className="main-content">
         {/* Header */}
-        <div className="section-header" style={{ marginBottom: '32px' }}>
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="section-header" 
+          style={{ marginBottom: '32px' }}
+        >
           <h1 className="section-title">AI Memory Coach</h1>
           <p className="section-subtitle">
             Your intelligent companion for memory analysis and personal growth. Ask questions, explore patterns, and get personalized insights from your memory map.
           </p>
-        </div>
+        </motion.div>
 
         {/* Tabs */}
-        <div className="tabs-container">
-          <div className="tabs-header">
-            <button 
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="tabs-container"
+        >
+          <div className="tabs-header" style={{ position: 'relative' }}>
+            <motion.button 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               className={`tab-button ${activeTab === 'chat' ? 'active' : ''}`}
               onClick={() => setActiveTab('chat')}
+              style={{ 
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
             >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                <path d="M8 9h8"/>
+                <path d="M8 13h6"/>
+              </svg>
               Chat with AI
-            </button>
-            <button 
+              {chatMessages.length > 0 && (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  style={{
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    background: '#8b7cf6',
+                    marginLeft: '4px'
+                  }}
+                />
+              )}
+            </motion.button>
+            <motion.button 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               className={`tab-button ${activeTab === 'insights' ? 'active' : ''}`}
               onClick={() => setActiveTab('insights')}
+              style={{ 
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
             >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M3 3v18h18"/>
+                <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/>
+              </svg>
               Insights
-            </button>
-            <button 
+              {insights && insights.total_entries > 0 && (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  style={{
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    background: '#22c55e',
+                    marginLeft: '4px'
+                  }}
+                />
+              )}
+            </motion.button>
+            <motion.button 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               className={`tab-button ${activeTab === 'demo' ? 'active' : ''}`}
               onClick={() => setActiveTab('demo')}
+              style={{ 
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
             >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 2v20"/>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+              </svg>
               Demo Data
-            </button>
+            </motion.button>
           </div>
 
           <div className="tab-content">
             {/* Chat Tab */}
             {activeTab === 'chat' && (
-              <div>
+              <motion.div
+                key="chat"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <AnimatePresence>
                 {chatMessages.length === 0 && (
-                  <div style={{ textAlign: 'center', padding: '48px 24px' }}>
-                    <div style={{ 
-                      width: '80px', 
-                      height: '80px', 
-                      borderRadius: 'var(--radius-2xl)', 
-                      background: 'var(--gradient-purple)', 
+                    <motion.div 
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{ duration: 0.6, ease: "easeOut" }}
+                      style={{ textAlign: 'center', padding: '48px 24px' }}
+                    >
+                      {/* AI Coach Avatar with Animation */}
+                      <motion.div 
+                        initial={{ scale: 0.8 }}
+                        animate={{ scale: 1 }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
+                        style={{ position: 'relative', display: 'inline-block', marginBottom: '32px' }}
+                      >
+                        <motion.div 
+                          animate={{ 
+                            boxShadow: [
+                              '0 0 20px rgba(139, 124, 246, 0.3)',
+                              '0 0 40px rgba(139, 124, 246, 0.5)',
+                              '0 0 20px rgba(139, 124, 246, 0.3)'
+                            ]
+                          }}
+                          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                          style={{ 
+                            width: '100px', 
+                            height: '100px', 
+                            borderRadius: '50%', 
+                            background: 'linear-gradient(135deg, #8b7cf6 0%, #c4b5fd 50%, #ede9fe 100%)', 
                       display: 'flex', 
                       alignItems: 'center', 
                       justifyContent: 'center',
-                      margin: '0 auto 24px',
-                      boxShadow: 'var(--shadow-md)'
-                    }}>
-                      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                        <path d="M8 9h8"/>
-                        <path d="M8 13h6"/>
+                            position: 'relative',
+                            overflow: 'hidden'
+                          }}
+                        >
+                          {/* Animated Background Particles */}
+                          <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                            style={{
+                              position: 'absolute',
+                              width: '120%',
+                              height: '120%',
+                              background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.3) 0%, transparent 50%)',
+                            }}
+                          />
+                          
+                          {/* AI Brain Icon */}
+                          <motion.div
+                            animate={{ y: [-2, 2, -2] }}
+                            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                          >
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5">
+                              <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/>
+                              <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/>
+                              <path d="M12 7v10"/>
+                              <circle cx="12" cy="12" r="2"/>
                       </svg>
-                    </div>
-                    <h3 style={{ marginBottom: '12px', color: 'var(--text-primary)' }}>
-                      Hi! I'm your AI Memory Coach
-                    </h3>
-                    <p style={{ color: 'var(--text-secondary)', marginBottom: '32px', maxWidth: '400px', margin: '0 auto 32px', lineHeight: '1.6' }}>
-                      I can help you understand your thoughts, emotions, and memory patterns. Ask me anything about your memories or personal growth journey.
-                    </p>
-                    
-                    <div style={{ display: 'grid', gap: '12px', maxWidth: '500px', margin: '0 auto' }}>
-                      <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: 'var(--text-dark)' }}>
+                          </motion.div>
+                        </motion.div>
+                        
+                        {/* Floating Sparkles */}
+                        <motion.div
+                          animate={{ 
+                            y: [-10, 10, -10],
+                            rotate: [0, 180, 360]
+                          }}
+                          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                          style={{ position: 'absolute', top: '-10px', right: '-10px', fontSize: '20px' }}
+                        >
+                          ✨
+                        </motion.div>
+                        <motion.div
+                          animate={{ 
+                            y: [10, -10, 10],
+                            rotate: [360, 180, 0]
+                          }}
+                          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                          style={{ position: 'absolute', bottom: '-5px', left: '-5px', fontSize: '16px' }}
+                        >
+                          🧠
+                        </motion.div>
+                      </motion.div>
+                      
+                      <motion.h3 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3, duration: 0.6 }}
+                        style={{ 
+                          marginBottom: '12px', 
+                          color: 'var(--text-primary)',
+                          fontSize: '24px',
+                          fontWeight: '700'
+                        }}
+                      >
+                        {insights && insights.total_entries > 0 
+                          ? `Welcome back! I'm your AI Memory Coach` 
+                          : `Hi! I'm your AI Memory Coach`}
+                      </motion.h3>
+                      
+                      <motion.p 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4, duration: 0.6 }}
+                        style={{ 
+                          color: 'var(--text-secondary)', 
+                          marginBottom: '40px', 
+                          maxWidth: '480px', 
+                          margin: '0 auto 40px', 
+                          lineHeight: '1.6',
+                          fontSize: '16px'
+                        }}
+                      >
+                        {insights && insights.total_entries > 0 
+                          ? `I've analyzed ${insights.total_entries} of your memories and I'm ready to help you discover patterns, understand emotions, and guide your personal growth journey.`
+                          : `I can help you understand your thoughts, emotions, and memory patterns. Ask me anything about your memories or personal growth journey.`}
+                      </motion.p>
+                      
+                      <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5, duration: 0.6 }}
+                        style={{ display: 'grid', gap: '16px', maxWidth: '600px', margin: '0 auto' }}
+                      >
+                        <h4 style={{ 
+                          fontSize: '18px', 
+                          fontWeight: '600', 
+                          marginBottom: '8px', 
+                          color: 'var(--text-dark)' 
+                        }}>
                         Try asking me:
                       </h4>
+                        
                       {suggestedPrompts.map((prompt, index) => (
-                        <button
+                          <motion.button
                           key={index}
-                          onClick={() => setInputMessage(prompt)}
-                          className="btn btn-secondary"
-                          style={{ textAlign: 'left', fontSize: '14px', justifyContent: 'flex-start' }}
-                        >
-                          {prompt}
-                        </button>
-                      ))}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.6 + index * 0.1, duration: 0.5 }}
+                            whileHover={{ 
+                              scale: 1.02,
+                              boxShadow: '0 8px 25px rgba(0,0,0,0.1)'
+                            }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => setInputMessage(prompt.text)}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '16px',
+                              padding: '16px 20px',
+                              background: 'white',
+                              border: '2px solid #f1f5f9',
+                              borderRadius: '16px',
+                              fontSize: '15px',
+                              fontWeight: '500',
+                              color: 'var(--text-primary)',
+                              cursor: 'pointer',
+                              transition: 'all 0.3s ease',
+                              textAlign: 'left',
+                              boxShadow: '0 2px 10px rgba(0,0,0,0.05)'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.target.style.borderColor = '#8b7cf6';
+                              e.target.style.background = '#fafafa';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.target.style.borderColor = '#f1f5f9';
+                              e.target.style.background = 'white';
+                            }}
+                          >
+                            <div style={{
+                              width: '40px',
+                              height: '40px',
+                              borderRadius: '12px',
+                              background: prompt.gradient,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '18px',
+                              flexShrink: 0
+                            }}>
+                              {prompt.icon}
                     </div>
+                            <span>{prompt.text}</span>
+                            <div style={{ marginLeft: 'auto', opacity: 0.4 }}>
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                              </svg>
                   </div>
+                          </motion.button>
+                        ))}
+                      </motion.div>
+                    </motion.div>
                 )}
+                </AnimatePresence>
 
-                <div className="chat-messages">
+                <div className="chat-messages" style={{ padding: '0 16px', maxHeight: '60vh', overflowY: 'auto' }}>
+                  <AnimatePresence>
                   {chatMessages.map((msg, index) => (
-                    <div key={index} className={`chat-message ${msg.isUser ? 'user' : 'ai'}`}>
-                      <div className={`chat-bubble ${msg.isUser ? 'user' : 'ai'}`}>
-                        <div style={{ marginBottom: '4px' }}>{msg.message}</div>
-                        <div style={{ fontSize: '12px', opacity: 0.7 }}>
+                      <motion.div 
+                        key={index} 
+                        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        transition={{ duration: 0.3, ease: "easeOut" }}
+                        style={{
+                          display: 'flex',
+                          justifyContent: msg.isUser ? 'flex-end' : 'flex-start',
+                          marginBottom: '16px',
+                          alignItems: 'flex-start',
+                          gap: '12px'
+                        }}
+                      >
+                        {/* AI Avatar for AI messages */}
+                        {!msg.isUser && (
+                          <motion.div 
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ delay: 0.1, duration: 0.3 }}
+                            style={{
+                              width: '36px',
+                              height: '36px',
+                              borderRadius: '50%',
+                              background: 'linear-gradient(135deg, #8b7cf6 0%, #c4b5fd 100%)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              flexShrink: 0,
+                              marginTop: '4px'
+                            }}
+                          >
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                              <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/>
+                              <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/>
+                            </svg>
+                          </motion.div>
+                        )}
+                        
+                        <div style={{ 
+                          maxWidth: '70%',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: msg.isUser ? 'flex-end' : 'flex-start'
+                        }}>
+                          <motion.div
+                            initial={{ scale: 0.9 }}
+                            animate={{ scale: 1 }}
+                            transition={{ delay: 0.1, duration: 0.3 }}
+                            style={{
+                              padding: '12px 16px',
+                              borderRadius: msg.isUser ? '20px 20px 4px 20px' : '20px 20px 20px 4px',
+                              background: msg.isUser 
+                                ? 'linear-gradient(135deg, #8b7cf6 0%, #c4b5fd 100%)'
+                                : 'white',
+                              color: msg.isUser ? 'white' : 'var(--text-primary)',
+                              fontSize: '15px',
+                              lineHeight: '1.5',
+                              boxShadow: msg.isUser 
+                                ? '0 4px 12px rgba(139, 124, 246, 0.3)'
+                                : '0 2px 8px rgba(0, 0, 0, 0.1)',
+                              border: msg.isUser ? 'none' : '1px solid #f1f5f9',
+                              position: 'relative'
+                            }}
+                          >
+                            <div style={{ marginBottom: msg.timestamp ? '8px' : '0' }}>
+                              {msg.message}
+                            </div>
+                            
+                            {msg.timestamp && (
+                              <div style={{ 
+                                fontSize: '11px', 
+                                opacity: 0.7,
+                                textAlign: msg.isUser ? 'right' : 'left'
+                              }}>
                           {msg.timestamp}
                         </div>
+                            )}
+                          </motion.div>
+                          
+                          {/* Explainable AI Button */}
                         {!msg.isUser && msg.explainableData && (
-                          <button
+                            <motion.button
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: 0.3, duration: 0.3 }}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
                             onClick={() => handleShowExplanation(msg.explainableData)}
-                            className="btn btn-ghost"
-                            style={{ marginTop: '8px', fontSize: '12px', padding: '4px 8px' }}
-                          >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '4px' }}>
+                              style={{
+                                marginTop: '8px',
+                                padding: '6px 12px',
+                                background: 'rgba(139, 124, 246, 0.1)',
+                                border: '1px solid rgba(139, 124, 246, 0.2)',
+                                borderRadius: '20px',
+                                fontSize: '12px',
+                                fontWeight: '500',
+                                color: '#8b7cf6',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                transition: 'all 0.2s ease'
+                              }}
+                              onMouseEnter={(e) => {
+                                e.target.style.background = 'rgba(139, 124, 246, 0.15)';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.target.style.background = 'rgba(139, 124, 246, 0.1)';
+                              }}
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                               <circle cx="12" cy="12" r="10"/>
                               <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
                               <path d="M12 17h.01"/>
                             </svg>
                             Why this advice?
-                          </button>
+                            </motion.button>
                         )}
                       </div>
-                    </div>
-                  ))}
+                        
+                        {/* User Avatar Placeholder */}
+                        {msg.isUser && (
+                          <motion.div 
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ delay: 0.1, duration: 0.3 }}
+                            style={{
+                              width: '36px',
+                              height: '36px',
+                              borderRadius: '50%',
+                              background: 'linear-gradient(135deg, #f472b6 0%, #ec4899 100%)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              flexShrink: 0,
+                              marginTop: '4px',
+                              fontSize: '16px'
+                            }}
+                          >
+                            👤
+                          </motion.div>
+                        )}
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
                   
+                  {/* Loading Animation */}
+                  <AnimatePresence>
                   {isLoading && (
-                    <div className="chat-message ai">
-                      <div className="chat-bubble ai">
-                        <div className="loading">
-                          <div className="spinner"></div>
-                          <span>Thinking...</span>
+                      <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.3 }}
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'flex-start',
+                          marginBottom: '16px',
+                          alignItems: 'flex-start',
+                          gap: '12px'
+                        }}
+                      >
+                        {/* AI Avatar */}
+                        <div style={{
+                          width: '36px',
+                          height: '36px',
+                          borderRadius: '50%',
+                          background: 'linear-gradient(135deg, #8b7cf6 0%, #c4b5fd 100%)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0,
+                          marginTop: '4px'
+                        }}>
+                          <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          >
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                              <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/>
+                              <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/>
+                            </svg>
+                          </motion.div>
                         </div>
+                        
+                        <div style={{
+                          padding: '12px 16px',
+                          borderRadius: '20px 20px 20px 4px',
+                          background: 'white',
+                          color: 'var(--text-primary)',
+                          fontSize: '15px',
+                          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                          border: '1px solid #f1f5f9',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px'
+                        }}>
+                          <motion.div
+                            animate={{ scale: [1, 1.2, 1] }}
+                            transition={{ duration: 1, repeat: Infinity }}
+                            style={{
+                              width: '8px',
+                              height: '8px',
+                              borderRadius: '50%',
+                              background: '#8b7cf6'
+                            }}
+                          />
+                          <motion.div
+                            animate={{ scale: [1, 1.2, 1] }}
+                            transition={{ duration: 1, repeat: Infinity, delay: 0.2 }}
+                            style={{
+                              width: '8px',
+                              height: '8px',
+                              borderRadius: '50%',
+                              background: '#8b7cf6'
+                            }}
+                          />
+                          <motion.div
+                            animate={{ scale: [1, 1.2, 1] }}
+                            transition={{ duration: 1, repeat: Infinity, delay: 0.4 }}
+                            style={{
+                              width: '8px',
+                              height: '8px',
+                              borderRadius: '50%',
+                              background: '#8b7cf6'
+                            }}
+                          />
+                          <span style={{ marginLeft: '8px', color: 'var(--text-secondary)' }}>
+                            Thinking...
+                          </span>
                       </div>
-                    </div>
+                      </motion.div>
                   )}
+                  </AnimatePresence>
                 </div>
+                {/* Sources */}
+                {chatMessages.filter(m => !m.isUser && m.sources?.length).length > 0 && (
+                  <div className="card" style={{ marginTop: '16px' }}>
+                    <h4 style={{ fontSize: '14px', fontWeight: 600, marginBottom: '8px' }}>Sources</h4>
+                    {chatMessages.filter(m => !m.isUser && m.sources?.length).slice(-1)[0].sources.map((s, idx) => (
+                      <div key={idx} style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '8px' }}>
+                        <div style={{ fontWeight: 600 }}>{s.metadata?.date} • {s.metadata?.emotion}</div>
+                        <div>{(s.content || '').slice(0, 180)}...</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
-                <div className="chat-input-container">
-                  <input
-                    type="text"
-                    className="chat-input"
-                    placeholder="Ask me anything about your memories and emotions..."
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                  style={{
+                    position: 'sticky',
+                    bottom: 0,
+                    background: 'linear-gradient(to top, rgba(249, 250, 251, 1) 0%, rgba(249, 250, 251, 0.95) 70%, transparent 100%)',
+                    padding: '20px 16px 24px',
+                    margin: '0 -16px',
+                    backdropFilter: 'blur(10px)'
+                  }}
+                >
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'flex-end',
+                    gap: '12px',
+                    maxWidth: '800px',
+                    margin: '0 auto',
+                    position: 'relative'
+                  }}>
+                    <div style={{ 
+                      flex: 1,
+                      position: 'relative'
+                    }}>
+                      <motion.textarea
+                        whileFocus={{ scale: 1.02 }}
+                        transition={{ duration: 0.2 }}
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-                  />
-                  <button 
-                    className="chat-send-btn" 
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            sendMessage();
+                          }
+                        }}
+                        placeholder="Ask me anything about your memories and emotions..."
+                        style={{
+                          width: '100%',
+                          minHeight: '52px',
+                          maxHeight: '120px',
+                          padding: '14px 20px',
+                          border: '2px solid #f1f5f9',
+                          borderRadius: '26px',
+                          fontSize: '15px',
+                          lineHeight: '1.5',
+                          background: 'white',
+                          color: 'var(--text-primary)',
+                          resize: 'none',
+                          outline: 'none',
+                          transition: 'all 0.3s ease',
+                          fontFamily: 'inherit',
+                          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)'
+                        }}
+                        onFocus={(e) => {
+                          e.target.style.borderColor = '#8b7cf6';
+                          e.target.style.boxShadow = '0 4px 20px rgba(139, 124, 246, 0.15)';
+                        }}
+                        onBlur={(e) => {
+                          e.target.style.borderColor = '#f1f5f9';
+                          e.target.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.08)';
+                        }}
+                        rows={1}
+                        onInput={(e) => {
+                          e.target.style.height = 'auto';
+                          e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
+                        }}
+                      />
+                      
+                      {/* Character count or other indicators could go here */}
+                      {inputMessage.length > 100 && (
+                        <div style={{
+                          position: 'absolute',
+                          right: '20px',
+                          bottom: '8px',
+                          fontSize: '11px',
+                          color: 'var(--text-secondary)',
+                          background: 'rgba(255, 255, 255, 0.9)',
+                          padding: '2px 6px',
+                          borderRadius: '10px'
+                        }}>
+                          {inputMessage.length}
+                        </div>
+                      )}
+                    </div>
+                    
+                    <motion.button 
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                     onClick={sendMessage}
                     disabled={!inputMessage.trim() || isLoading}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      style={{
+                        width: '52px',
+                        height: '52px',
+                        borderRadius: '50%',
+                        background: inputMessage.trim() && !isLoading
+                          ? 'linear-gradient(135deg, #8b7cf6 0%, #c4b5fd 100%)'
+                          : '#e5e7eb',
+                        border: 'none',
+                        cursor: inputMessage.trim() && !isLoading ? 'pointer' : 'not-allowed',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'all 0.3s ease',
+                        boxShadow: inputMessage.trim() && !isLoading
+                          ? '0 4px 15px rgba(139, 124, 246, 0.4)'
+                          : '0 2px 8px rgba(0, 0, 0, 0.1)',
+                        flexShrink: 0
+                      }}
+                    >
+                      {isLoading ? (
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        >
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                            <path d="M21 12a9 9 0 11-6.219-8.56"/>
+                          </svg>
+                        </motion.div>
+                      ) : (
+                        <svg 
+                          width="20" 
+                          height="20" 
+                          viewBox="0 0 24 24" 
+                          fill="none" 
+                          stroke={inputMessage.trim() ? "white" : "#9ca3af"} 
+                          strokeWidth="2"
+                        >
                       <line x1="22" y1="2" x2="11" y2="13"/>
                       <polygon points="22,2 15,22 11,13 2,9 22,2"/>
                     </svg>
-                  </button>
+                      )}
+                    </motion.button>
                 </div>
-              </div>
+                  
+                  {/* Quick actions */}
+                  {inputMessage.length === 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2, duration: 0.3 }}
+                      style={{
+                        display: 'flex',
+                        gap: '8px',
+                        justifyContent: 'center',
+                        marginTop: '12px',
+                        flexWrap: 'wrap'
+                      }}
+                    >
+                      {['✨ Analyze mood', '📊 Show patterns', '💡 Get advice'].map((action, index) => (
+                        <motion.button
+                          key={action}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: 0.3 + index * 0.1, duration: 0.3 }}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => setInputMessage(action.split(' ').slice(1).join(' '))}
+                          style={{
+                            padding: '6px 12px',
+                            background: 'rgba(139, 124, 246, 0.1)',
+                            border: '1px solid rgba(139, 124, 246, 0.2)',
+                            borderRadius: '20px',
+                            fontSize: '12px',
+                            fontWeight: '500',
+                            color: '#8b7cf6',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.target.style.background = 'rgba(139, 124, 246, 0.15)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.target.style.background = 'rgba(139, 124, 246, 0.1)';
+                          }}
+                        >
+                          {action}
+                        </motion.button>
+                      ))}
+                    </motion.div>
+                  )}
+                </motion.div>
+              </motion.div>
             )}
 
             {/* Insights Tab */}
             {activeTab === 'insights' && (
-              <div>
+              <motion.div
+                key="insights"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
                 {insights ? (
                   <div className="dashboard-grid">
                     <div className="dashboard-card">
@@ -340,12 +1003,18 @@ const CoachingDashboard = () => {
                     </div>
                   </div>
                 )}
-              </div>
+              </motion.div>
             )}
 
             {/* Demo Tab */}
             {activeTab === 'demo' && (
-              <div>
+              <motion.div
+                key="demo"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
                 <div style={{ textAlign: 'center', marginBottom: '32px' }}>
                   <h3 style={{ marginBottom: '8px', color: 'var(--text-primary)' }}>Demo Memory Data</h3>
                   <p style={{ color: 'var(--text-secondary)', fontSize: '15px', lineHeight: '1.6' }}>
@@ -402,10 +1071,10 @@ const CoachingDashboard = () => {
                     </div>
                   ))}
                 </div>
-              </div>
+              </motion.div>
             )}
           </div>
-        </div>
+        </motion.div>
 
         {/* Explainable AI Modal */}
         {showExplanation && explainableData && (

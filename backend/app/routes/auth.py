@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, EmailStr
 from ..services.firestore_service import firestore_service
 from ..utils.auth import hash_password, verify_password, create_access_token
+from ..services.rag_coaching import rag_coaching_service
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
@@ -29,7 +30,14 @@ async def register(user: UserCreate):
     }
     result = firestore_service.create_user(user_data)
     if result.get("success"):
-        return {"message": "User registered successfully"}
+        # Yeni kullanıcılar için demo günlüklerini seed et
+        try:
+            user_id = result.get("user_id")
+            firestore_service.seed_demo_entries_for_user(user_id)
+            rag_coaching_service.seed_demo_for_user(user_id)
+        except Exception:
+            pass
+        return {"message": "User registered successfully", "user_id": result.get("user_id")}
     else:
         raise HTTPException(status_code=500, detail=result.get("error", "Registration failed"))
 
@@ -43,4 +51,4 @@ async def login(user: UserLogin):
     if not verify_password(user.password, db_user["hashed_password"]):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     access_token = create_access_token({"sub": db_user["email"], "user_id": db_user.get("id")})
-    return {"access_token": access_token, "token_type": "bearer"} 
+    return {"access_token": access_token, "token_type": "bearer"}

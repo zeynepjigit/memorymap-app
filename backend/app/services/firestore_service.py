@@ -64,6 +64,68 @@ class FirestoreService:
         except Exception as e:
             return {"success": False, "error": f"Connection test failed: {str(e)}"}
     
+    # User operations
+    def get_user_by_email(self, email: str) -> Dict[str, Any]:
+        """Email'e göre kullanıcıyı getirir"""
+        try:
+            if not self.db:
+                return {"success": False, "error": "Firestore not initialized"}
+
+            users_ref = self.db.collection('users').where('email', '==', email).limit(1)
+            docs = list(users_ref.stream())
+            if not docs:
+                return {"success": True, "user": None}
+
+            doc = docs[0]
+            data = doc.to_dict()
+            data['id'] = doc.id
+            return {"success": True, "user": data}
+
+        except Exception as e:
+            return {"success": False, "error": f"Failed to get user: {str(e)}"}
+
+    def get_user_by_id(self, user_id: str) -> Dict[str, Any]:
+        """ID'ye göre kullanıcıyı getirir"""
+        try:
+            if not self.db:
+                return {"success": False, "error": "Firestore not initialized"}
+            doc = self.db.collection('users').document(user_id).get()
+            if not doc.exists:
+                return {"success": True, "user": None}
+            data = doc.to_dict()
+            data['id'] = doc.id
+            return {"success": True, "user": data}
+        except Exception as e:
+            return {"success": False, "error": f"Failed to get user: {str(e)}"}
+
+    def create_user(self, user_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Yeni kullanıcı oluşturur"""
+        try:
+            if not self.db:
+                return {"success": False, "error": "Firestore not initialized"}
+
+            # timestamps
+            now = datetime.now(timezone.utc)
+            user_data.setdefault('created_at', now)
+            user_data.setdefault('updated_at', now)
+            user_ref = self.db.collection('users').document()
+            user_ref.set(user_data)
+            return {"success": True, "user_id": user_ref.id}
+        except Exception as e:
+            return {"success": False, "error": f"Failed to create user: {str(e)}"}
+
+    def update_user(self, user_id: str, update_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Kullanıcı profilini günceller"""
+        try:
+            if not self.db:
+                return {"success": False, "error": "Firestore not initialized"}
+            update_data = dict(update_data or {})
+            update_data['updated_at'] = datetime.now(timezone.utc)
+            self.db.collection('users').document(user_id).update(update_data)
+            return {"success": True}
+        except Exception as e:
+            return {"success": False, "error": f"Failed to update user: {str(e)}"}
+
     # Diary CRUD operations
     def create_diary_entry(self, user_id: str, entry_data: Dict[str, Any]) -> Dict[str, Any]:
         """Günlük girişi oluştur"""
@@ -117,6 +179,24 @@ class FirestoreService:
             
         except Exception as e:
             return {"success": False, "error": f"Failed to get diary entries: {str(e)}"}
+    
+    def get_diary_entries_count(self, user_id: str) -> Dict[str, Any]:
+        """Kullanıcının günlük giriş sayısını getir"""
+        try:
+            if not self.db:
+                return {"success": False, "error": "Firestore not initialized"}
+            
+            # Kullanıcının tüm günlük girişlerini say
+            entries_ref = self.db.collection('diary_entries').where('user_id', '==', user_id)
+            docs = list(entries_ref.stream())
+            
+            return {
+                "success": True,
+                "count": len(docs)
+            }
+            
+        except Exception as e:
+            return {"success": False, "error": f"Failed to get diary entries count: {str(e)}"}
     
     def get_diary_entry(self, entry_id: str) -> Dict[str, Any]:
         """Tekil günlük girişi getir"""
@@ -176,6 +256,61 @@ class FirestoreService:
             
         except Exception as e:
             return {"success": False, "error": f"Failed to delete diary entry: {str(e)}"}
+
+    def clear_all_diary_entries(self, user_id: str) -> Dict[str, Any]:
+        """Kullanıcının tüm günlük girişlerini temizle"""
+        try:
+            if not self.db:
+                return {"success": False, "error": "Firestore not initialized"}
+            
+            # Kullanıcının tüm günlük girişlerini getir
+            entries_ref = self.db.collection('diary_entries').where('user_id', '==', user_id)
+            docs = list(entries_ref.stream())
+            
+            deleted_count = 0
+            for doc in docs:
+                doc.reference.delete()
+                deleted_count += 1
+            
+            return {
+                "success": True,
+                "message": f"All diary entries cleared successfully",
+                "deleted_count": deleted_count
+            }
+            
+        except Exception as e:
+            return {"success": False, "error": f"Failed to clear diary entries: {str(e)}"}
+
+    def seed_demo_entries_for_user(self, user_id: str) -> Dict[str, Any]:
+        """Yeni kullanıcı için demo günlük girdileri oluşturur"""
+        try:
+            if not self.db:
+                return {"success": False, "error": "Firestore not initialized"}
+
+            demo_entries: List[Dict[str, Any]] = [
+                {
+                    "title": "Welcome to MemoryMap",
+                    "content": "This is a demo entry to help you get started.",
+                    "location": "",
+                    "mood": "neutral",
+                },
+                {
+                    "title": "A calm morning",
+                    "content": "Enjoyed a calm morning walk and felt refreshed.",
+                    "location": "",
+                    "mood": "positive",
+                },
+            ]
+
+            created_ids: List[str] = []
+            for entry in demo_entries:
+                result = self.create_diary_entry(user_id, entry)
+                if result.get("success"):
+                    created_ids.append(result.get("entry_id"))
+
+            return {"success": True, "created_entry_ids": created_ids}
+        except Exception as e:
+            return {"success": False, "error": f"Failed to seed demo entries: {str(e)}"}
 
 # Global instance
 firestore_service = FirestoreService() 

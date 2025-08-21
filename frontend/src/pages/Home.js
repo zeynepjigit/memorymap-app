@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { getEmotionalInsights } from '../services/api';
 
 const Home = () => {
@@ -25,7 +26,7 @@ const Home = () => {
       ),
       title: 'AI-Powered Insights',
       description: 'Uncover hidden patterns in your thoughts and emotions with advanced artificial intelligence that learns from your writing.',
-      gradient: 'var(--gradient-purple)'
+      gradient: 'linear-gradient(135deg, #ff6b6b 0%, #ffa726 50%, #ffeb3b 100%)'
     },
     {
       icon: (
@@ -35,7 +36,7 @@ const Home = () => {
       ),
       title: 'Conversational AI Coach',
       description: 'Have meaningful conversations with your personal AI coach that understands your journey and provides personalized guidance.',
-      gradient: 'var(--gradient-blue)'
+      gradient: 'linear-gradient(135deg, #e91e63 0%, #9c27b0 50%, #673ab7 100%)'
     },
     {
       icon: (
@@ -46,30 +47,33 @@ const Home = () => {
       ),
       title: 'Emotional Analytics',
       description: 'Track your emotional well-being over time with detailed analytics that help you understand your mental health patterns.',
-      gradient: 'var(--gradient-green)'
+      gradient: 'linear-gradient(135deg, #4caf50 0%, #8bc34a 50%, #cddc39 100%)'
     },
     {
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
-          <circle cx="9" cy="9" r="2"/>
-          <path d="M21 15l-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M12 1v6m0 6v6"/>
+          <path d="m4.2 4.2 4.2 4.2m5.2 5.2 4.2 4.2"/>
+          <path d="M1 12h6m6 0h6"/>
+          <path d="m4.2 19.8 4.2-4.2m5.2-5.2 4.2-4.2"/>
         </svg>
       ),
-      title: 'Visual Memory Creation',
-      description: 'Transform your thoughts and dreams into beautiful visual representations using AI-powered image generation.',
-      gradient: 'var(--gradient-orange)'
+      title: 'Emotional Map',
+      description: 'Explore your emotional landscape with interactive visualizations that connect your feelings and memories in meaningful ways.',
+      gradient: 'linear-gradient(135deg, #2196f3 0%, #21cbf3 50%, #00bcd4 100%)'
     },
     {
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-          <circle cx="12" cy="10" r="3"/>
+          <path d="M14 9V5a3 3 0 0 0-6 0v4"/>
+          <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+          <path d="m7 16 3 3 3-3"/>
         </svg>
       ),
-      title: 'Location-Based Memories',
-      description: 'Connect your memories to places with intelligent location tracking and create a visual map of your experiences.',
-      gradient: 'var(--gradient-blue)'
+      title: 'Inspirational Quotes',
+      description: 'Get personalized motivational quotes based on your emotions and save your favorites for daily inspiration and reflection.',
+      gradient: 'linear-gradient(135deg, #ff9800 0%, #ff5722 50%, #f44336 100%)'
     },
     {
       icon: (
@@ -80,7 +84,7 @@ const Home = () => {
       ),
       title: 'Personal Growth Tracking',
       description: 'Monitor your personal development journey with insights that help you understand your progress and areas for improvement.',
-      gradient: 'var(--gradient-green)'
+      gradient: 'linear-gradient(135deg, #9c27b0 0%, #673ab7 50%, #3f51b5 100%)'
     }
   ];
 
@@ -93,41 +97,228 @@ const Home = () => {
           <ul className="nav-links">
             <li><Link to="/dashboard" className="nav-link">Dashboard</Link></li>
             <li><Link to="/coaching" className="nav-link">AI Coach</Link></li>
-            <li><Link to="/gallery" className="nav-link">Gallery</Link></li>
+            <li><Link to="/quotes" className="nav-link">Quotes</Link></li>
             <li><Link to="/login" className="btn btn-primary">Get Started</Link></li>
           </ul>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="hero-section">
-        <div className="hero-content">
-          <div className="hero-badge">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
-            </svg>
-            <span>Trusted by thousands of users worldwide</span>
-          </div>
-          
-          <h1 className="hero-title">
-            <span className="hero-title-gradient">Memory Mapping</span><br />
-            with AI Superpowers
-          </h1>
+      <section style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        {/* Subtle Background Pattern */}
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundImage: `
+            radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.05) 0%, transparent 50%),
+            radial-gradient(circle at 75% 75%, rgba(168, 85, 247, 0.05) 0%, transparent 50%)
+          `,
+          opacity: 0.6
+        }} />
 
-          <p className="hero-subtitle">
-            Transform your thoughts into a visual map of memories. Capture life's moments with AI-powered insights, 
-            emotional analysis, and personalized coaching to help you flourish.
-          </p>
+        <div className="hero-content" style={{
+          position: 'relative',
+          zIndex: 2,
+          textAlign: 'center',
+          maxWidth: '800px',
+          padding: '0 24px'
+        }}>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              background: 'rgba(99, 102, 241, 0.08)',
+              border: '1px solid rgba(99, 102, 241, 0.15)',
+              borderRadius: '50px',
+              padding: '8px 20px',
+              marginBottom: '32px',
+              color: '#4f46e5'
+            }}
+          >
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            >
+              ✨
+            </motion.div>
+            <span style={{ fontSize: '14px', fontWeight: '500' }}>
+              Powered by Advanced AI Technology
+            </span>
+          </motion.div>
           
-          <div className="hero-cta">
-            <Link to="/register" className="btn btn-primary">
-              Start Journaling Today
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            style={{
+              fontSize: 'clamp(2.5rem, 5vw, 4rem)',
+              fontWeight: '800',
+              lineHeight: '1.1',
+              marginBottom: '24px',
+              color: '#1e293b'
+            }}
+          >
+            Memory Mapping
+            <br />
+            <span style={{
+              background: 'linear-gradient(135deg, #ffeaa7 0%, #fab1a0 50%, #fd79a8 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
+            }}>
+              Reimagined
+            </span>
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            style={{
+              fontSize: '1.25rem',
+              lineHeight: '1.6',
+              color: '#64748b',
+              marginBottom: '40px',
+              maxWidth: '600px',
+              margin: '0 auto 40px'
+            }}
+          >
+            Transform your thoughts into an intelligent, visual journey. Our AI understands your emotions, 
+            connects your memories, and provides personalized insights to accelerate your personal growth.
+          </motion.p>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            style={{
+              display: 'flex',
+              gap: '16px',
+              justifyContent: 'center',
+              flexWrap: 'wrap'
+            }}
+          >
+            <Link 
+              to="/register" 
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '16px 32px',
+                background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+                color: 'white',
+                textDecoration: 'none',
+                borderRadius: '50px',
+                fontWeight: '600',
+                fontSize: '16px',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 4px 20px rgba(79, 70, 229, 0.25)'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-2px)';
+                e.target.style.boxShadow = '0 8px 32px rgba(79, 70, 229, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = '0 4px 20px rgba(79, 70, 229, 0.25)';
+              }}
+            >
+              <span>🚀</span>
+              Start Your Journey
             </Link>
-            <Link to="/coaching" className="btn btn-secondary">
+            <Link 
+              to="/coaching" 
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '16px 32px',
+                background: 'rgba(255, 255, 255, 0.8)',
+                backdropFilter: 'blur(10px)',
+                color: '#4f46e5',
+                textDecoration: 'none',
+                borderRadius: '50px',
+                fontWeight: '600',
+                fontSize: '16px',
+                border: '1px solid rgba(79, 70, 229, 0.2)',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.background = 'rgba(255, 255, 255, 0.95)';
+                e.target.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = 'rgba(255, 255, 255, 0.8)';
+                e.target.style.transform = 'translateY(0)';
+              }}
+            >
+              <span>🤖</span>
               Try AI Coach
             </Link>
-          </div>
+          </motion.div>
         </div>
+
+        {/* Subtle Floating Elements */}
+        <motion.div
+          animate={{ y: [-10, 10, -10] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          style={{
+            position: 'absolute',
+            top: '15%',
+            left: '8%',
+            fontSize: '1.2rem',
+            opacity: 0.1,
+            color: '#4f46e5'
+          }}
+        >
+          🧠
+        </motion.div>
+        <motion.div
+          animate={{ y: [10, -10, 10] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+          style={{
+            position: 'absolute',
+            top: '70%',
+            right: '12%',
+            fontSize: '1rem',
+            opacity: 0.1,
+            color: '#7c3aed'
+          }}
+        >
+          ✨
+        </motion.div>
+        <motion.div
+          animate={{ y: [-8, 8, -8] }}
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+          style={{
+            position: 'absolute',
+            bottom: '25%',
+            left: '15%',
+            fontSize: '1.1rem',
+            opacity: 0.1,
+            color: '#6366f1'
+          }}
+        >
+          🗺️
+        </motion.div>
       </section>
 
       {/* Features Section */}
@@ -156,28 +347,67 @@ const Home = () => {
     </section>
 
       {/* AI Features Section */}
-      <section style={{ padding: '80px 24px', background: 'var(--background-gray)' }}>
+      <section style={{ padding: '80px 24px', background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)' }}>
         <div className="section-container">
           <div className="section-header">
-            <h2 className="section-title">Go Deeper with AI Memory Analysis</h2>
+            <h2 className="section-title">Powerful Features for Memory Mapping</h2>
             <p className="section-subtitle">
-              Our intelligent AI companion analyzes your memory patterns, offers personalized guidance, 
-              and provides meaningful insights to help you understand your emotional journey.
-      </p>
-    </div>
+              Discover how our AI-powered tools help you understand your emotions, organize your memories, 
+              and find daily inspiration for personal growth.
+            </p>
+          </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '32px', marginTop: '48px' }}>
-            <div className="card" style={{ padding: '32px', textAlign: 'center' }}>
+            <div className="card" style={{ 
+              padding: '32px', 
+              textAlign: 'center',
+              background: 'linear-gradient(135deg, rgba(33, 150, 243, 0.05) 0%, rgba(33, 203, 243, 0.05) 100%)',
+              border: '1px solid rgba(33, 150, 243, 0.1)'
+            }}>
               <div style={{ 
                 width: '80px', 
                 height: '80px', 
                 borderRadius: 'var(--radius-2xl)', 
-                background: 'var(--gradient-purple)', 
+                background: 'linear-gradient(135deg, #2196f3 0%, #21cbf3 50%, #00bcd4 100%)', 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center',
                 margin: '0 auto 24px',
-                boxShadow: 'var(--shadow-md)'
+                boxShadow: '0 8px 32px rgba(33, 150, 243, 0.3)'
+              }}>
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M12 1v6m0 6v6"/>
+                  <path d="m4.2 4.2 4.2 4.2m5.2 5.2 4.2 4.2"/>
+                  <path d="M1 12h6m6 0h6"/>
+                  <path d="m4.2 19.8 4.2-4.2m5.2-5.2 4.2-4.2"/>
+                </svg>
+              </div>
+              <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '12px', color: '#1e293b' }}>
+                Interactive Emotional Map
+              </h3>
+              <p style={{ color: '#64748b', lineHeight: '1.6' }}>
+                Visualize your emotional journey with interactive maps that connect your feelings to memories, 
+                helping you understand patterns and triggers in your mental well-being.
+              </p>
+            </div>
+
+            <div className="card" style={{ 
+              padding: '32px', 
+              textAlign: 'center',
+              background: 'linear-gradient(135deg, rgba(233, 30, 99, 0.05) 0%, rgba(156, 39, 176, 0.05) 100%)',
+              border: '1px solid rgba(233, 30, 99, 0.1)'
+            }}>
+              <div style={{ 
+                width: '80px', 
+                height: '80px', 
+                borderRadius: 'var(--radius-2xl)', 
+                background: 'linear-gradient(135deg, #e91e63 0%, #9c27b0 50%, #673ab7 100%)', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                margin: '0 auto 24px',
+                boxShadow: '0 8px 32px rgba(233, 30, 99, 0.3)'
               }}>
                 <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
                   <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
@@ -185,68 +415,49 @@ const Home = () => {
                   <path d="M8 13h6"/>
                 </svg>
               </div>
-              <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '12px', color: 'var(--text-primary)' }}>
-                Ask Your Memories Anything
+              <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '12px', color: '#1e293b' }}>
+                AI-Powered Coach
               </h3>
-              <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6' }}>
-                Leverage AI-enhanced search to instantly find, analyze, and uncover patterns in your memory map, 
-                turning your personal history into a powerful tool for self-discovery and growth.
+              <p style={{ color: '#64748b', lineHeight: '1.6' }}>
+                Have meaningful conversations with your personal AI coach that understands your journey 
+                and provides personalized guidance for emotional growth and self-discovery.
               </p>
             </div>
 
-            <div className="card" style={{ padding: '32px', textAlign: 'center' }}>
+            <div className="card" style={{ 
+              padding: '32px', 
+              textAlign: 'center',
+              background: 'linear-gradient(135deg, rgba(255, 152, 0, 0.05) 0%, rgba(255, 87, 34, 0.05) 100%)',
+              border: '1px solid rgba(255, 152, 0, 0.1)'
+            }}>
               <div style={{ 
                 width: '80px', 
                 height: '80px', 
                 borderRadius: 'var(--radius-2xl)', 
-                background: 'var(--gradient-blue)', 
+                background: 'linear-gradient(135deg, #ff9800 0%, #ff5722 50%, #f44336 100%)', 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center',
                 margin: '0 auto 24px',
-                boxShadow: 'var(--shadow-md)'
+                boxShadow: '0 8px 32px rgba(255, 152, 0, 0.3)'
               }}>
                 <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                  <path d="M14 9V5a3 3 0 0 0-6 0v4"/>
+                  <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+                  <path d="m7 16 3 3 3-3"/>
                 </svg>
               </div>
-              <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '12px', color: 'var(--text-dark)' }}>
-                Speak Your Mind
-            </h3>
-              <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>
-                Effortlessly transform your spoken thoughts into written reflections with our advanced voice-to-text technology, 
-                making journaling more accessible and spontaneous.
-              </p>
-            </div>
-
-            <div className="card" style={{ padding: '32px', textAlign: 'center' }}>
-              <div style={{ 
-                width: '80px', 
-                height: '80px', 
-                borderRadius: 'var(--radius-2xl)', 
-                background: 'var(--gradient-green)', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                margin: '0 auto 24px',
-                boxShadow: 'var(--shadow-md)'
-              }}>
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                  <path d="M3 3v18h18"/>
-                  <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/>
-                </svg>
-              </div>
-              <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '12px', color: 'var(--text-dark)' }}>
-                100+ Journaling Guides
+              <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '12px', color: '#1e293b' }}>
+                Daily Inspiration Quotes
               </h3>
-              <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>
-                Dive into a comprehensive library of expert-curated guides covering mental health, personal growth, 
-                relationships, career development, and emotional well-being.
+              <p style={{ color: '#64748b', lineHeight: '1.6' }}>
+                Get personalized motivational quotes based on your current emotions and save your favorites 
+                for daily inspiration and reflection on your personal growth journey.
               </p>
             </div>
           </div>
-    </div>
-  </section>
+        </div>
+      </section>
 
       {/* Stats Section */}
       {insights && (

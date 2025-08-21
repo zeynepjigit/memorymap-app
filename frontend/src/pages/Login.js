@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { authLogin } from '../services/api';
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -14,11 +15,13 @@ const Login = () => {
     setLoading(true);
     setError('');
     
-    // Demo login
-    if (formData.email === 'demo@example.com' && formData.password === 'demo123') {
-      setTimeout(() => navigate('/dashboard'), 1000);
+    // Real login via backend
+    const res = await authLogin({ email: formData.email, password: formData.password });
+    if (res.success && res.access_token) {
+      try { localStorage.setItem('token', res.access_token); } catch {}
+      navigate('/dashboard');
     } else {
-      setError('Invalid credentials. Use demo@example.com / demo123 for demo access.');
+      setError(res.error || 'Invalid credentials');
     }
     setLoading(false);
   };
