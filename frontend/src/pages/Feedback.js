@@ -30,6 +30,9 @@ const Feedback = () => {
             <li><Link to="/dashboard" className="nav-link">Dashboard</Link></li>
             <li><Link to="/coaching" className="nav-link">AI Coach</Link></li>
             <li><Link to="/gallery" className="nav-link">Gallery</Link></li>
+            <li><Link to="/emotional-map" className="nav-link">Emotional Map</Link></li>
+            <li><Link to="/memories" className="nav-link">Memories</Link></li>
+            <li><Link to="/quotes" className="nav-link">Quotes</Link></li>
             <li><Link to="/profile" className="nav-link">Profile</Link></li>
           </ul>
         </div>

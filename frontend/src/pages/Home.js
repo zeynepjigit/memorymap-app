@@ -173,7 +173,7 @@ const Home = () => {
               color: '#1e293b'
             }}
           >
-            Memory Mapping
+            Your Digital
             <br />
             <span style={{
               background: 'linear-gradient(135deg, #ffeaa7 0%, #fab1a0 50%, #fd79a8 100%)',
@@ -181,7 +181,7 @@ const Home = () => {
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text'
             }}>
-              Reimagined
+              Mind Palace
             </span>
           </motion.h1>
 
@@ -198,8 +198,8 @@ const Home = () => {
               margin: '0 auto 40px'
             }}
           >
-            Transform your thoughts into an intelligent, visual journey. Our AI understands your emotions, 
-            connects your memories, and provides personalized insights to accelerate your personal growth.
+            Discover the power of AI-guided self-reflection. We transform your daily thoughts and feelings into meaningful insights, 
+            helping you understand patterns, unlock emotional intelligence, and create a personalized roadmap for your mental well-being.
           </motion.p>
           
           <motion.div
@@ -350,10 +350,10 @@ const Home = () => {
       <section style={{ padding: '80px 24px', background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)' }}>
         <div className="section-container">
           <div className="section-header">
-            <h2 className="section-title">Powerful Features for Memory Mapping</h2>
+            <h2 className="section-title">AI-Powered Tools for Self-Discovery</h2>
             <p className="section-subtitle">
-              Discover how our AI-powered tools help you understand your emotions, organize your memories, 
-              and find daily inspiration for personal growth.
+              Experience the future of personal development with intelligent features designed to unlock your emotional wisdom, 
+              organize your thoughts, and guide your journey toward mental clarity and growth.
             </p>
           </div>
 

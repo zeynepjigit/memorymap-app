@@ -1,6 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { analyzeEmotion, createDiaryEntry, getDiaryEntry, updateDiaryEntry, editorSuggest, getPersonalizedAdvice, getDiaryEntries, generateInspirationalQuote, getQuoteHistory } from '../services/api';
+import { 
+  analyzeEmotion, 
+  analyzeEmotionDeep, 
+  analyzeEmotionComparative, 
+  analyzeEmotionEnhanced,
+  createDiaryEntry, 
+  getDiaryEntry, 
+  updateDiaryEntry, 
+  editorSuggest, 
+  getPersonalizedAdvice, 
+  getDiaryEntries, 
+  generateInspirationalQuote, 
+  getQuoteHistory 
+} from '../services/api';
 import { Link } from 'react-router-dom';
 import QuoteCard from '../components/QuoteCard';
 import QuoteHistory from '../components/QuoteHistory';
@@ -18,8 +31,12 @@ const DiaryEntry = () => {
     emotion: ''
   });
   const [emotionResult, setEmotionResult] = useState(null);
+  const [deepEmotionResult, setDeepEmotionResult] = useState(null);
+  const [comparativeEmotionResult, setComparativeEmotionResult] = useState(null);
+  const [selectedAnalysisType, setSelectedAnalysisType] = useState('deep');
   const [loading, setLoading] = useState(false);
-  const [analyzing, setAnalyzing] = useState(false);
+  const [deepAnalyzing, setDeepAnalyzing] = useState(false);
+  const [comparativeAnalyzing, setComparativeAnalyzing] = useState(false);
   
   // Smart Editor states
   const [smartEditorResult, setSmartEditorResult] = useState(null);
@@ -34,7 +51,6 @@ const DiaryEntry = () => {
 
   // UI States
   const [activeTab, setActiveTab] = useState('write'); // 'write', 'entries'
-  const [showSidebar, setShowSidebar] = useState(false);
   const [entries, setEntries] = useState([]);
   const [entriesLoading, setEntriesLoading] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState(null);
@@ -98,17 +114,59 @@ const DiaryEntry = () => {
     setEntriesLoading(false);
   };
 
+
+
   const handleChange = async (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     
     // Auto-analyze emotion when content changes
     if (name === 'content' && value.length > 10) {
-      setAnalyzing(true);
       const er = await analyzeEmotion(value);
       if (er.success) setEmotionResult(er.data);
-      setAnalyzing(false);
     }
+  };
+
+
+
+  const handleComparativeAnalysis = async () => {
+    if (!formData.content.trim()) return;
+    setComparativeAnalyzing(true);
+    try {
+      // Get previous entries for comparison
+      const entriesResult = await getDiaryEntries(5);
+      const previousEntries = entriesResult.success ? entriesResult.data.entries : [];
+      
+      const result = await analyzeEmotionComparative(formData.content, previousEntries);
+      if (result.success) {
+        setComparativeEmotionResult(result.data);
+      } else {
+        console.error('Comparative analysis failed:', result.error);
+      }
+    } catch (error) {
+      console.error('Comparative analysis error:', error);
+    }
+    setComparativeAnalyzing(false);
+  };
+
+  const handleEnhancedAnalysis = async () => {
+    if (!formData.content.trim()) return;
+    setDeepAnalyzing(true);
+    try {
+      const result = await analyzeEmotionEnhanced(formData.content, selectedAnalysisType);
+      if (result.success) {
+        if (selectedAnalysisType === 'deep') {
+          setDeepEmotionResult(result.data);
+        } else if (selectedAnalysisType === 'comparative') {
+          setComparativeEmotionResult(result.data);
+        }
+      } else {
+        console.error('Enhanced analysis failed:', result.error);
+      }
+    } catch (error) {
+      console.error('Enhanced analysis error:', error);
+    }
+    setDeepAnalyzing(false);
   };
 
   const handleSmartEditor = async () => {
@@ -140,47 +198,53 @@ const DiaryEntry = () => {
     if (!formData.content.trim()) return;
     setDeepAnalysisProcessing(true);
     try {
-      console.log('Starting Deep Analysis with:', formData.content);
+      console.log('Starting Enhanced Deep Analysis with Gemini...');
       
-      // Get emotion analysis
-      const emotionResult = await analyzeEmotion(formData.content);
-      console.log('Emotion analysis result:', emotionResult);
+      // Use Gemini for deep emotion analysis
+      const deepEmotionResult = await analyzeEmotionDeep(formData.content);
+      console.log('Deep emotion analysis result:', deepEmotionResult);
       
-      // Enhanced prompt for better context-aware questions
-      const questionPrompt = `As a thoughtful life coach and therapist, analyze this diary entry: "${formData.content.substring(0, 300)}..." 
-      
-      Detected emotion: ${emotionResult.success ? emotionResult.data.emotion : 'neutral'}
-      
-      Generate 4-5 deeply insightful, context-aware questions that will help this person:
-      1. Explore their emotions more deeply
-      2. Understand the root causes of their feelings
-      3. Gain new perspectives on their situation
-      4. Identify patterns in their thoughts and behaviors
-      5. Find actionable insights for personal growth
-      
-      Make questions:
-      - Personal and empathetic (use "you" and "your")
-      - Specific to their content and emotional state
-      - Open-ended to encourage deep reflection
-      - Actionable where appropriate
-      - Focused on self-discovery and growth
-      
-      Return only the questions, one per line, without numbering.`;
-      
-      console.log('Calling getPersonalizedAdvice with prompt:', questionPrompt);
-      const questionsResult = await getPersonalizedAdvice(questionPrompt);
-      console.log('Questions result:', questionsResult);
-      
-      if (questionsResult.success) {
-        const questions = questionsResult.answer.split('\n').filter(q => q.trim().length > 0);
-        console.log('Parsed questions:', questions);
-        setGuidingQuestions(questions);
-        setDeepAnalysisResult(emotionResult.success ? emotionResult.data : null);
-        setShowDeepAnalysis(true);
-        setShowSidebar(true); // Auto-show sidebar for questions
+      if (deepEmotionResult.success) {
+        setDeepEmotionResult(deepEmotionResult.data);
+        
+        // Generate guiding questions based on deep analysis
+        const questionPrompt = `As a thoughtful life coach and therapist, analyze this diary entry: "${formData.content.substring(0, 300)}..." 
+        
+        Deep Emotion Analysis: ${JSON.stringify(deepEmotionResult.data, null, 2)}
+        
+        Generate 4-5 deeply insightful, context-aware questions that will help this person:
+        1. Explore their emotions more deeply
+        2. Understand the root causes of their feelings
+        3. Gain new perspectives on their situation
+        4. Identify patterns in their thoughts and behaviors
+        5. Find actionable insights for personal growth
+        
+        Make questions:
+        - Personal and empathetic (use "you" and "your")
+        - Specific to their content and emotional state
+        - Open-ended to encourage deep reflection
+        - Actionable where appropriate
+        - Focused on self-discovery and growth
+        
+        Return only the questions, one per line, without numbering.`;
+        
+        console.log('Calling getPersonalizedAdvice with enhanced prompt');
+        const questionsResult = await getPersonalizedAdvice(questionPrompt);
+        console.log('Questions result:', questionsResult);
+        
+        if (questionsResult.success) {
+          const questions = questionsResult.answer.split('\n').filter(q => q.trim().length > 0);
+          console.log('Parsed questions:', questions);
+          setGuidingQuestions(questions);
+          setDeepAnalysisResult(deepEmotionResult.data);
+          setShowDeepAnalysis(true);
+        } else {
+          console.error('Questions generation failed:', questionsResult.error);
+          alert('Questions generation failed: ' + questionsResult.error);
+        }
       } else {
-        console.error('Deep Analysis failed:', questionsResult.error);
-        alert('Deep Analysis failed: ' + questionsResult.error);
+        console.error('Deep Analysis failed:', deepEmotionResult.error);
+        alert('Deep Analysis failed: ' + deepEmotionResult.error);
       }
     } catch (error) {
       console.error('Deep Analysis error:', error);
@@ -259,6 +323,7 @@ const DiaryEntry = () => {
   };
 
   const handleEditEntry = (entry) => {
+    console.log('Edit button clicked for entry:', entry);
     setSelectedEntry(entry);
     setFormData({
       title: entry.title || '',
@@ -268,6 +333,8 @@ const DiaryEntry = () => {
       emotion: entry.emotion || ''
     });
     setActiveTab('write');
+    // Scroll to top to show the form
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Quote-related functions
@@ -343,6 +410,9 @@ const DiaryEntry = () => {
             <li><Link to="/dashboard" className="nav-link">Dashboard</Link></li>
             <li><Link to="/coaching" className="nav-link">AI Coach</Link></li>
             <li><Link to="/gallery" className="nav-link">Gallery</Link></li>
+            <li><Link to="/emotional-map" className="nav-link">Emotional Map</Link></li>
+            <li><Link to="/memories" className="nav-link">Memories</Link></li>
+            <li><Link to="/quotes" className="nav-link">Quotes</Link></li>
             <li><Link to="/profile" className="nav-link">Profile</Link></li>
           </ul>
         </div>
@@ -373,49 +443,7 @@ const DiaryEntry = () => {
             {activeTab === 'write' ? (
               // Writing Tab
               <div className="diary-form-container">
-                {/* Debug Test Section */}
-                <div style={{ 
-                  background: '#f0f9ff', 
-                  border: '1px solid #0ea5e9', 
-                  borderRadius: '8px', 
-                  padding: '16px', 
-                  marginBottom: '24px' 
-                }}>
-                  <h3 style={{ color: '#0369a1', marginBottom: '12px' }}>🧪 Debug Test Section</h3>
-                  <p style={{ color: '#0369a1', marginBottom: '12px' }}>
-                    Test the AI features here. Write some text below and try the buttons.
-                  </p>
-                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                    <button
-                      onClick={() => setFormData(prev => ({ ...prev, content: 'Today I felt really happy because I accomplished something important. I worked hard on my project and finally finished it. The feeling of completion was amazing!' }))}
-                      className="btn btn-secondary"
-                      style={{ fontSize: '12px' }}
-                    >
-                      Load Test Text
-                    </button>
-                    <button
-                      onClick={handleSmartEditor}
-                      disabled={smartEditorProcessing}
-                      className="btn btn-primary"
-                      style={{ fontSize: '12px' }}
-                    >
-                      {smartEditorProcessing ? 'Testing...' : 'Test Smart Editor'}
-                    </button>
-                    <button
-                      onClick={handleDeepAnalysis}
-                      disabled={deepAnalysisProcessing}
-                      className="btn btn-primary"
-                      style={{ fontSize: '12px' }}
-                    >
-                      {deepAnalysisProcessing ? 'Testing...' : 'Test Deep Analysis'}
-                    </button>
-                  </div>
-                  {emotionResult && (
-                    <div style={{ marginTop: '12px', padding: '8px', background: 'white', borderRadius: '4px' }}>
-                      <strong>Emotion Result:</strong> {JSON.stringify(emotionResult)}
-                    </div>
-                  )}
-                </div>
+
 
                 <div className="section-header" style={{ marginBottom: '32px' }}>
                   <h1 className="section-title">
@@ -569,20 +597,9 @@ const DiaryEntry = () => {
                             </button>
                           </div>
 
-                          {/* Quick Emotion Display */}
-                          {emotionResult && (
-                            <div className="diary-emotion-display">
-                              <span className="diary-emotion-label">
-                                Detected emotion:
-                              </span>
-                              <div className={`diary-emotion-badge ${
-                                emotionResult.emotion === 'POSITIVE' ? 'positive' : 
-                                emotionResult.emotion === 'NEGATIVE' ? 'negative' : 'neutral'
-                              }`}>
-                                {emotionResult.emotion}
-                              </div>
-                            </div>
-                          )}
+
+
+
                         </div>
                       )}
                     </div>
@@ -670,16 +687,39 @@ const DiaryEntry = () => {
                               </div>
                               <div className="diary-entry-actions">
                                 <button
-                                  onClick={() => handleEditEntry(entry)}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    handleEditEntry(entry);
+                                  }}
                                   className="btn btn-secondary"
-                                  style={{ fontSize: '12px', padding: '6px 12px' }}
+                                  style={{ 
+                                    fontSize: '12px', 
+                                    padding: '6px 12px',
+                                    cursor: 'pointer',
+                                    pointerEvents: 'auto',
+                                    zIndex: 10,
+                                    position: 'relative'
+                                  }}
                                 >
                                   Edit
                                 </button>
                                 <button
-                                  onClick={() => handleDeleteEntry(entry.id)}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    handleDeleteEntry(entry.id);
+                                  }}
                                   className="btn btn-ghost"
-                                  style={{ fontSize: '12px', padding: '6px 12px', color: '#DC2626' }}
+                                  style={{ 
+                                    fontSize: '12px', 
+                                    padding: '6px 12px', 
+                                    color: '#DC2626',
+                                    cursor: 'pointer',
+                                    pointerEvents: 'auto',
+                                    zIndex: 10,
+                                    position: 'relative'
+                                  }}
                                 >
                                   Delete
                                 </button>

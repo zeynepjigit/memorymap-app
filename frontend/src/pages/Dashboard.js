@@ -10,15 +10,27 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
 
 
+  const loadData = async () => {
+    setLoading(true);
+    const r = await getEmotionalInsights();
+    if (r.success) setInsights(r.insights);
+    const entries = await getDiaryEntries(6);
+    if (entries.success) setRecent(entries.data.entries || []);
+    setLoading(false);
+  };
+
   useEffect(() => {
-    (async () => {
-      const r = await getEmotionalInsights();
-      if (r.success) setInsights(r.insights);
-      const entries = await getDiaryEntries(6);
-      if (entries.success) setRecent(entries.data.entries || []);
-      setLoading(false);
-    })();
+    loadData();
   }, []);
+
+  const handleEntryDeleted = (deletedId) => {
+    // Remove from recent entries immediately
+    setRecent(prev => prev.filter(entry => entry.id !== deletedId));
+    // Reload insights to get updated count
+    loadData();
+  };
+
+
 
 
 
@@ -33,6 +45,7 @@ const Dashboard = () => {
           <ul className="nav-links">
             <li><Link to="/dashboard" className="nav-link" style={{ color: 'var(--primary-purple)' }}>Dashboard</Link></li>
             <li><Link to="/coaching" className="nav-link">AI Coach</Link></li>
+            <li><Link to="/gallery" className="nav-link">Gallery</Link></li>
             <li><Link to="/emotional-map" className="nav-link">Emotional Map</Link></li>
             <li><Link to="/memories" className="nav-link">Memories</Link></li>
             <li><Link to="/quotes" className="nav-link">Quotes</Link></li>
@@ -248,213 +261,7 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Enhanced Emotional Patterns */}
-        {insights?.emotion_distribution && (
-          <div style={{ 
-            marginTop: '48px',
-            background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.05) 0%, rgba(139, 195, 74, 0.05) 100%)',
-            border: '1px solid rgba(76, 175, 80, 0.1)',
-            borderRadius: '20px',
-            padding: '32px'
-          }}>
-            <div style={{ marginBottom: '32px', textAlign: 'center' }}>
-              <div style={{
-                width: '60px',
-                height: '60px',
-                borderRadius: '15px',
-                background: 'linear-gradient(135deg, #4caf50 0%, #8bc34a 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '0 auto 16px',
-                boxShadow: '0 8px 32px rgba(76, 175, 80, 0.3)'
-              }}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                  <path d="M3 3v18h18"/>
-                  <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/>
-                </svg>
-              </div>
-              <h3 style={{ 
-                fontSize: '1.5rem', 
-                fontWeight: '700', 
-                marginBottom: '8px', 
-                color: '#1e293b' 
-              }}>
-                Your Emotional Patterns
-              </h3>
-              <p style={{ 
-                color: '#64748b', 
-                fontSize: '1rem', 
-                lineHeight: '1.6',
-                maxWidth: '500px',
-                margin: '0 auto'
-              }}>
-                Understanding your emotional landscape over time helps identify patterns and triggers in your mental well-being.
-              </p>
-            </div>
-            
-            <div style={{ display: 'grid', gap: '20px' }}>
-              {Object.entries(insights.emotion_distribution).map(([emotion, count], index) => {
-                const percentage = (count / insights.total_entries) * 100;
-                const emotionColors = {
-                  'happy': '#FFD700',
-                  'joy': '#FFD700', 
-                  'excited': '#FF6B6B',
-                  'love': '#FF69B4',
-                  'calm': '#87CEEB',
-                  'peaceful': '#98FB98',
-                  'sad': '#4682B4',
-                  'angry': '#DC143C',
-                  'anxious': '#9370DB',
-                  'worried': '#8B4513',
-                  'neutral': '#808080',
-                  'motivated': '#32CD32',
-                  'positive': '#00CED1',
-                  'negative': '#FF4500'
-                };
-                const emotionColor = emotionColors[emotion.toLowerCase()] || '#6366f1';
-                const emotionEmojis = {
-                  'happy': '😊',
-                  'joy': '😄',
-                  'excited': '🤩', 
-                  'love': '💕',
-                  'calm': '😌',
-                  'peaceful': '🕊️',
-                  'sad': '😢',
-                  'angry': '😠',
-                  'anxious': '😰',
-                  'worried': '😟',
-                  'neutral': '😐',
-                  'motivated': '💪',
-                  'positive': '✨',
-                  'negative': '⚡'
-                };
-                const emotionEmoji = emotionEmojis[emotion.toLowerCase()] || '💭';
-                
-                return (
-                  <div 
-                    key={emotion} 
-                    style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: '20px',
-                      padding: '16px',
-                      background: 'rgba(255, 255, 255, 0.7)',
-                      borderRadius: '12px',
-                      border: `1px solid ${emotionColor}20`,
-                      transition: 'all 0.3s ease',
-                      cursor: 'pointer'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.transform = 'translateY(-2px)';
-                      e.target.style.boxShadow = `0 8px 25px ${emotionColor}25`;
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.transform = 'translateY(0)';
-                      e.target.style.boxShadow = 'none';
-                    }}
-                  >
-                    <div style={{ 
-                      fontSize: '1.5rem',
-                      minWidth: '40px',
-                      textAlign: 'center'
-                    }}>
-                      {emotionEmoji}
-                    </div>
-                    
-                    <div style={{ 
-                      minWidth: '120px', 
-                      fontSize: '1rem', 
-                      fontWeight: '600', 
-                      textTransform: 'capitalize',
-                      color: '#1e293b'
-                    }}>
-                      {emotion}
-                    </div>
-                    
-                    <div style={{ 
-                      flex: 1, 
-                      background: '#f1f5f9', 
-                      height: '12px', 
-                      borderRadius: '6px', 
-                      overflow: 'hidden',
-                      position: 'relative'
-                    }}>
-                      <div 
-                        style={{ 
-                          width: `${percentage}%`, 
-                          height: '100%', 
-                          background: `linear-gradient(90deg, ${emotionColor}80, ${emotionColor})`,
-                          borderRadius: '6px',
-                          transition: 'width 1s ease',
-                          animation: `fillBar${index} 1s ease forwards`
-                        }} 
-                      />
-                    </div>
-                    
-                    <div style={{ 
-                      minWidth: '50px', 
-                      fontSize: '1rem', 
-                      fontWeight: '700', 
-                      color: emotionColor,
-                      textAlign: 'center'
-                    }}>
-                      {count}
-                    </div>
-                    
-                    <div style={{ 
-                      minWidth: '60px', 
-                      fontSize: '0.9rem', 
-                      color: '#64748b',
-                      textAlign: 'right',
-                      fontWeight: '500'
-                    }}>
-                      {percentage.toFixed(1)}%
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            
-            {/* Link to Emotional Map */}
-            <div style={{ textAlign: 'center', marginTop: '32px' }}>
-              <Link 
-                to="/emotional-map"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  padding: '12px 24px',
-                  background: 'linear-gradient(135deg, #4caf50 0%, #8bc34a 100%)',
-                  color: 'white',
-                  textDecoration: 'none',
-                  borderRadius: '25px',
-                  fontWeight: '600',
-                  fontSize: '0.95rem',
-                  boxShadow: '0 4px 20px rgba(76, 175, 80, 0.3)',
-                  transition: 'all 0.3s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.transform = 'translateY(-2px)';
-                  e.target.style.boxShadow = '0 8px 30px rgba(76, 175, 80, 0.4)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = '0 4px 20px rgba(76, 175, 80, 0.3)';
-                }}
-              >
-                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <circle cx="12" cy="12" r="3"/>
-                  <path d="M12 1v6m0 6v6"/>
-                  <path d="m4.2 4.2 4.2 4.2m5.2 5.2 4.2 4.2"/>
-                  <path d="M1 12h6m6 0h6"/>
-                  <path d="m4.2 19.8 4.2-4.2m5.2-5.2 4.2-4.2"/>
-                </svg>
-                Explore Interactive Emotional Map
-              </Link>
-            </div>
-          </div>
-        )}
+
 
         {/* Enhanced Recent Memories */}
         {recent.length > 0 && (
@@ -567,7 +374,7 @@ const Dashboard = () => {
                       })() : '#6366f1'
                   }} />
                   
-                  <AnalysisCard entry={e} />
+                  <AnalysisCard entry={e} onDelete={handleEntryDeleted} />
                 </motion.div>
               ))}
             </div>

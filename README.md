@@ -4,19 +4,52 @@
 
 ## AI-Powered Diary & Memory Mapping Application
 
-MemoryMap is a digital platform that analyzes users' daily experiences with artificial intelligence, enriching them with emotional states, visited places, and AI-generated visuals. The app helps users visualize their memories on a map, track their emotional journey, and receive personal development coaching powered by open‑source LLMs.
+MemoryMap is an innovative digital platform that transforms your daily experiences into meaningful insights. Using advanced AI technologies, it analyzes your diary entries to extract emotional states, locations, and generates personalized visuals while providing intelligent coaching for personal development.
 
 ---
 
-## ✨ Features
-- **AI Emotion Analysis:** Analyze diary texts for emotions using HuggingFace models
-- **Memory Mapping:** Visualize visited places on interactive maps (OpenStreetMap)
-- **AI Visual Generation:** Create memory-specific images with Stable Diffusion (open source)
-- **Personal Development Coaching:** Get reflective questions and suggestions powered by open‑source LLMs
-- **Diary Management:** Create, update, and manage diary entries
-- **User Authentication:** Secure registration, login, and JWT-based session management
-- **Notifications:** Receive motivational and reminder push notifications
-- **Analytics:** Track diary habits, emotion changes, and visited places
+## ✨ Key Features
+
+### 🤖 AI-Powered Analysis
+- **Emotion Analysis:** Advanced sentiment analysis using HuggingFace Transformers
+- **Location Extraction:** Intelligent place detection with spaCy NER models
+- **Text Analytics:** Comprehensive text processing and insights generation
+- **Explainable AI:** Transparent AI decisions with detailed explanations
+
+### 🗺️ Memory Visualization
+- **Interactive Maps:** Visualize your memories on dynamic maps using Leaflet.js
+- **Emotional Mapping:** Color-coded emotional states across locations
+- **Memory Timeline:** Chronological view of your experiences
+- **Location Insights:** Detailed analytics about visited places
+
+### 🎨 AI Visual Generation
+- **Multiple AI Providers:** Stable Diffusion, FAL.ai, Google Gemini integration
+- **Memory-Specific Images:** Generate visuals that capture your experiences
+- **Gallery Management:** Organize and manage AI-generated artwork
+- **Custom Prompts:** Advanced prompt engineering for better results
+
+### 🧠 Personal Development Coaching
+- **RAG-Powered Coaching:** Retrieval-Augmented Generation for personalized advice
+- **Reflective Questions:** AI-generated questions based on your entries
+- **Progress Tracking:** Monitor your emotional and personal growth
+- **Multiple LLM Support:** OpenAI GPT and Google Gemini integration
+
+### 📱 User Experience
+- **Responsive Design:** Beautiful UI that works on all devices
+- **Real-time Updates:** Live data synchronization
+- **Secure Authentication:** JWT-based user management
+- **Firebase Integration:** Cloud storage and real-time database
+
+### 📊 Analytics & Insights
+- **Emotional Trends:** Track your mood patterns over time
+- **Usage Analytics:** Detailed statistics about your diary habits
+- **Model Performance:** AI accuracy tracking and optimization
+- **Personal Dashboard:** Comprehensive overview of your journey
+
+### 🔔 Smart Notifications
+- **Personalized Reminders:** AI-generated motivational messages
+- **Firebase Cloud Messaging:** Cross-platform push notifications
+- **Smart Scheduling:** Context-aware notification timing
 
 ---
 
@@ -83,20 +116,54 @@ Environment variable names match `vercel.json` and `render.yaml` for deployment.
 ## 📁 Project Structure
 ```
 AIFD- Project/
-├── backend/                    # FastAPI-based API
+├── backend/                          # FastAPI Backend
 │   ├── app/
-│   │   ├── routes/             # auth, diary, diary_crud, emotion, location, coaching
-│   │   ├── services/           # analytics_backend, emotion_analysis, rag_coaching, image_generation, location_extraction, firebase, firestore_service
-│   │   ├── models/             # Pydantic models (user, diary, ...)
-│   │   └── middleware/         # security headers, rate limiting
-│   ├── requirements.txt
-│   └── tests/
-├── frontend/                   # React.js user interface
-│   └── src/
-├── docs/                       # Project documentation
-├── render.yaml                 # Backend deployment (Render)
-├── vercel.json                 # Frontend deployment (Vercel)
-└── README.md                   # Project overview
+│   │   ├── main.py                  # Application entry point
+│   │   ├── routes/                  # API endpoints
+│   │   │   ├── auth.py             # Authentication routes
+│   │   │   ├── diary.py            # Diary CRUD operations
+│   │   │   ├── emotion.py          # AI analysis endpoints
+│   │   │   ├── coaching.py         # RAG coaching system
+│   │   │   └── profile.py          # User profile management
+│   │   ├── services/               # Business logic
+│   │   │   ├── emotion_analysis.py # HuggingFace emotion models
+│   │   │   ├── location_extraction.py # spaCy NER for locations
+│   │   │   ├── rag_coaching.py     # RAG implementation
+│   │   │   ├── firebase.py         # Firebase integration
+│   │   │   ├── analytics_backend.py # Usage tracking
+│   │   │   └── providers/          # AI model providers
+│   │   │       ├── llm_openai.py   # OpenAI GPT integration
+│   │   │       ├── llm_gemini.py   # Google Gemini integration
+│   │   │       └── images_*.py     # Image generation providers
+│   │   ├── models/                 # Pydantic data models
+│   │   ├── utils/                  # Helper utilities
+│   │   └── middleware/             # Security & rate limiting
+│   ├── tests/                      # Backend tests
+│   └── requirements.txt            # Python dependencies
+│
+├── frontend/                         # React.js Frontend
+│   ├── src/
+│   │   ├── pages/                  # Main application pages
+│   │   │   ├── Dashboard.js        # Main user dashboard
+│   │   │   ├── DiaryEntry.js       # Diary creation/editing
+│   │   │   ├── EmotionalMap.js     # Interactive emotion map
+│   │   │   ├── Gallery.js          # AI-generated images
+│   │   │   ├── CoachingDashboard.js # AI coaching interface
+│   │   │   └── Quotes.js           # Motivational content
+│   │   ├── components/             # Reusable UI components
+│   │   ├── services/               # API integration
+│   │   └── utils/                  # Frontend utilities
+│   └── package.json                # Node.js dependencies
+│
+├── docs/                            # Documentation
+│   ├── README.md                   # Project overview
+│   ├── tech-stack.md              # Technology details
+│   ├── user-flow.md               # User journey documentation
+│   └── setup-guide.md             # Development setup
+│
+├── render.yaml                      # Backend deployment config
+├── vercel.json                      # Frontend deployment config
+└── README.md                        # Main project documentation
 ```
 
 ---
@@ -112,20 +179,53 @@ AIFD- Project/
 
 ---
 
-## 📖 API Overview (Selected Endpoints)
-| Method | Endpoint                         | Description                        |
-|--------|-----------------------------------|------------------------------------|
-| POST   | /auth/register                    | Register a new user                |
-| POST   | /auth/login                       | User login                         |
-| GET    | /auth/me                          | Get current user info              |
-| POST   | /api/v1/diary/                    | Create a diary entry               |
-| GET    | /api/v1/diary/                    | List diary entries                 |
-| POST   | /api/v1/emotion/analyze           | Analyze emotion in text            |
-| POST   | /api/v1/location/extract          | Extract locations from text        |
-| POST   | /emotion/coaching/questions       | Get reflective questions           |
-| POST   | /emotion/coaching/advice          | Get personal development advice    |
+## 📖 API Overview
 
-For more, see the FastAPI docs at `/docs` when the backend is running.
+### Authentication Endpoints
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/auth/register` | User registration with email/password |
+| POST | `/auth/login` | User authentication and JWT token generation |
+| GET | `/auth/me` | Get current user profile information |
+
+### Diary Management
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/v1/diary/` | Create new diary entry with AI analysis |
+| GET | `/api/v1/diary/` | Retrieve diary entries with filtering |
+| PUT | `/api/v1/diary/{id}` | Update existing diary entry |
+| DELETE | `/api/v1/diary/{id}` | Delete diary entry and associated data |
+
+### AI Analysis Services
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/emotion/analyze` | Advanced emotion analysis with confidence scores |
+| POST | `/emotion/location/extract` | Extract and geocode locations from text |
+| POST | `/emotion/coaching/questions` | Generate personalized reflective questions |
+| POST | `/emotion/coaching/advice` | Get AI-powered personal development advice |
+
+### Visual Generation
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/emotion/generate-image` | Create AI images using multiple providers |
+| GET | `/emotion/images` | List user's generated images |
+| DELETE | `/emotion/images/{id}` | Delete generated image |
+
+### Analytics & Insights
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/emotion/insights` | Get emotional insights and trends |
+| GET | `/analytics/dashboard` | Comprehensive user analytics |
+| POST | `/notifications/send` | Send personalized notifications |
+
+### RAG Coaching System
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/coaching/add-entry` | Add diary entry to RAG knowledge base |
+| POST | `/coaching/query` | Query personal memory database |
+| POST | `/coaching/advice` | Get context-aware coaching advice |
+
+**📋 Complete API Documentation:** Visit `/docs` when running the backend for interactive Swagger documentation.
 
 ---
 
@@ -159,11 +259,42 @@ npm test
 ---
 
 ## 🧰 Tech Stack
-- **Backend:** FastAPI, Python, SQLAlchemy, Pydantic, SlowAPI (rate limiting), Firebase Admin SDK
-- **AI:** HuggingFace Transformers, spaCy, sentence-transformers, ChromaDB, LangChain (community), Stable Diffusion
-- **Frontend:** React.js, React Router, Leaflet.js/React-Leaflet, Axios, CSS
-- **Database/Storage:** PostgreSQL (e.g., Supabase), Firebase Storage
-- **Notifications:** Firebase Cloud Messaging
+
+### Backend Architecture
+- **Framework:** FastAPI with async/await support
+- **Language:** Python 3.9+
+- **Database:** PostgreSQL with SQLAlchemy ORM
+- **Authentication:** JWT tokens with secure middleware
+- **Rate Limiting:** SlowAPI for API protection
+- **Cloud Services:** Firebase Admin SDK, Firestore
+
+### AI & Machine Learning
+- **NLP Models:** HuggingFace Transformers, spaCy NER
+- **Embeddings:** sentence-transformers, OpenAI embeddings
+- **Vector Database:** ChromaDB for RAG implementation
+- **Image Generation:** Stable Diffusion, FAL.ai, Google Gemini
+- **LLM Integration:** OpenAI GPT-4, Google Gemini Pro
+- **RAG Framework:** Custom implementation with LangChain Community
+
+### Frontend Technology
+- **Framework:** React.js 18+ with Hooks
+- **Routing:** React Router v6
+- **Animations:** Framer Motion for smooth interactions
+- **Maps:** Leaflet.js with React-Leaflet
+- **HTTP Client:** Axios with interceptors
+- **Styling:** Modern CSS with CSS Variables
+
+### Database & Storage
+- **Primary Database:** PostgreSQL (Supabase)
+- **Vector Storage:** ChromaDB
+- **File Storage:** Firebase Cloud Storage
+- **Real-time Data:** Firestore for live updates
+
+### DevOps & Deployment
+- **Backend Hosting:** Render.com
+- **Frontend Hosting:** Vercel
+- **CI/CD:** GitHub Actions
+- **Monitoring:** Custom analytics backend
 - **Testing:** PyTest, React Testing Library
 
 ---

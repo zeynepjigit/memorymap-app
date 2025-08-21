@@ -138,7 +138,28 @@ export const deleteDiaryEntry = async (entryId) => {
   }
 }; 
 
-// Duygu analizi fonksiyonu
+// Tüm günlük girişlerini temizle
+export const clearAllDiaryEntries = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/diary/clear/all`, {
+      method: 'DELETE',
+      headers: withAuth({ 'Content-Type': 'application/json' }),
+    });
+    
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.detail || 'Failed to clear diary entries');
+    }
+    
+    return { success: true, data };
+  } catch (error) {
+    console.error('Clear all diary entries error:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+// Temel duygu analizi fonksiyonu
 export const analyzeEmotion = async (text) => {
   try {
     const response = await fetch(`${API_BASE_URL}/api/v1/emotion/analyze`, {
@@ -149,6 +170,122 @@ export const analyzeEmotion = async (text) => {
     const data = await response.json();
     if (!response.ok) {
       throw new Error(data.detail || 'Duygu analizi başarısız');
+    }
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+// Gemini ile derin duygu analizi
+export const analyzeEmotionDeep = async (text, userContext = null) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/emotion/analyze/deep`, {
+      method: 'POST',
+      headers: withAuth({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ 
+        text, 
+        analysis_type: "deep",
+        user_context: userContext 
+      })
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.detail || 'Derin duygu analizi başarısız');
+    }
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+// Karşılaştırmalı duygu analizi
+export const analyzeEmotionComparative = async (text, previousEntries = null) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/emotion/analyze/comparative`, {
+      method: 'POST',
+      headers: withAuth({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ 
+        text, 
+        previous_entries: previousEntries 
+      })
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.detail || 'Karşılaştırmalı analiz başarısız');
+    }
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+// Gelişmiş duygu analizi (tüm türleri destekler)
+export const analyzeEmotionEnhanced = async (text, analysisType = "deep", userContext = null) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/emotion/analyze/enhanced`, {
+      method: 'POST',
+      headers: withAuth({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ 
+        text, 
+        analysis_type: analysisType,
+        user_context: userContext 
+      })
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.detail || 'Gelişmiş analiz başarısız');
+    }
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+// Duygu özeti alma
+export const getEmotionSummary = async (timePeriod = "week") => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/emotion/summary?time_period=${timePeriod}`, {
+      method: 'GET',
+      headers: withAuth({ 'Content-Type': 'application/json' }),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.detail || 'Duygu özeti alınamadı');
+    }
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+// Mevcut analiz türlerini listele
+export const getAnalysisTypes = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/emotion/analysis-types`, {
+      method: 'GET',
+      headers: withAuth({ 'Content-Type': 'application/json' }),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.detail || 'Analiz türleri alınamadı');
+    }
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+// Derin analiz test endpoint'i
+export const testDeepAnalysis = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/emotion/test/deep`, {
+      method: 'POST',
+      headers: withAuth({ 'Content-Type': 'application/json' }),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.detail || 'Test başarısız');
     }
     return { success: true, data };
   } catch (error) {

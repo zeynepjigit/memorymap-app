@@ -13,24 +13,31 @@ const Gallery = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const [imgRes, entryRes] = await Promise.all([
+        getUserImages(),
+        getDiaryEntries(30),
+      ]);
+      if (imgRes.success && imgRes.data.images) setImages(imgRes.data.images);
+      if (entryRes.success && entryRes.data.entries) setEntries(entryRes.data.entries);
+      setError(null);
+    } catch (e) {
+      setError('Veriler alınamadı');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    (async () => {
-      setLoading(true);
-      try {
-        const [imgRes, entryRes] = await Promise.all([
-          getUserImages(),
-          getDiaryEntries(30),
-        ]);
-        if (imgRes.success && imgRes.data.images) setImages(imgRes.data.images);
-        if (entryRes.success && entryRes.data.entries) setEntries(entryRes.data.entries);
-        setError(null);
-      } catch (e) {
-        setError('Veriler alınamadı');
-      } finally {
-        setLoading(false);
-      }
-    })();
+    loadData();
   }, []);
+
+  const handleEntryDeleted = (deletedId) => {
+    // Remove from entries immediately
+    setEntries(prev => prev.filter(entry => entry.id !== deletedId));
+  };
 
   const filteredEntries = entries.filter((e) => {
     if (sentiment !== 'all') {
@@ -60,6 +67,9 @@ const Gallery = () => {
             <li><Link to="/dashboard" className="nav-link">Dashboard</Link></li>
             <li><Link to="/coaching" className="nav-link">AI Coach</Link></li>
             <li><Link to="/gallery" className="nav-link" style={{ color: 'var(--primary-purple)' }}>Gallery</Link></li>
+            <li><Link to="/emotional-map" className="nav-link">Emotional Map</Link></li>
+            <li><Link to="/memories" className="nav-link">Memories</Link></li>
+            <li><Link to="/quotes" className="nav-link">Quotes</Link></li>
             <li><Link to="/profile" className="nav-link">Profile</Link></li>
           </ul>
         </div>
@@ -112,7 +122,7 @@ const Gallery = () => {
                 )}
                 <div className="dashboard-grid">
                   {filteredEntries.map((e) => (
-                    <AnalysisCard key={e.id} entry={e} />
+                    <AnalysisCard key={e.id} entry={e} onDelete={handleEntryDeleted} />
                   ))}
                 </div>
               </>

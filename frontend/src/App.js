@@ -16,7 +16,8 @@ import Feedback from './pages/Feedback';
 import FeedbackForm from './pages/FeedbackForm';
 import MapView from './pages/MapView';
 import NotificationSettings from './pages/NotificationSettings';
-import ApiTest from './pages/ApiTest';
+import Gallery from './pages/Gallery';
+
 
 // Components
 import Header from './components/Header';
@@ -231,9 +232,8 @@ function App() {
               } 
             />
 
-            {/* Test Sayfası */}
             <Route 
-              path="/api-test" 
+              path="/gallery" 
               element={
                 <motion.div
                   initial={{ opacity: 0, x: 20 }}
@@ -241,10 +241,12 @@ function App() {
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <ApiTest />
+                  <Gallery />
                 </motion.div>
               } 
             />
+
+
 
             {/* 404 - Sayfa Bulunamadı */}
             <Route 

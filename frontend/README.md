@@ -34,7 +34,7 @@ The app will open at [http://localhost:3000](http://localhost:3000)
 
 - `npm start` - Runs the app in development mode
 - `npm build` - Builds the app for production
-- `npm test` - Launches the test runner
+
 - `npm eject` - Ejects from Create React App (one-way operation)
 
 ## Technology Stack
@@ -53,7 +53,7 @@ src/
 ├── pages/         # Page components
 ├── services/      # API services
 ├── utils/         # Helper utilities
-├── styles/        # Global styles
+
 └── App.js         # Main application component
 ```
 

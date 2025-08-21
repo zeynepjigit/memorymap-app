@@ -170,6 +170,9 @@ const CoachingDashboard = () => {
             <li><Link to="/dashboard" className="nav-link">Dashboard</Link></li>
             <li><Link to="/coaching" className="nav-link" style={{ color: 'var(--primary-purple)' }}>AI Coach</Link></li>
             <li><Link to="/gallery" className="nav-link">Gallery</Link></li>
+            <li><Link to="/emotional-map" className="nav-link">Emotional Map</Link></li>
+            <li><Link to="/memories" className="nav-link">Memories</Link></li>
+            <li><Link to="/quotes" className="nav-link">Quotes</Link></li>
             <li><Link to="/profile" className="nav-link">Profile</Link></li>
           </ul>
         </div>
@@ -489,7 +492,13 @@ const CoachingDashboard = () => {
                 )}
                 </AnimatePresence>
 
-                <div className="chat-messages" style={{ padding: '0 16px', maxHeight: '60vh', overflowY: 'auto' }}>
+                <div className="chat-messages" style={{ 
+                  padding: '0 16px', 
+                  minHeight: '400px',
+                  maxHeight: 'calc(100vh - 400px)', 
+                  overflowY: 'auto',
+                  marginBottom: '100px'
+                }}>
                   <AnimatePresence>
                   {chatMessages.map((msg, index) => (
                       <motion.div 
@@ -745,20 +754,25 @@ const CoachingDashboard = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5 }}
                   style={{
-                    position: 'sticky',
-                    bottom: 0,
-                    background: 'linear-gradient(to top, rgba(249, 250, 251, 1) 0%, rgba(249, 250, 251, 0.95) 70%, transparent 100%)',
-                    padding: '20px 16px 24px',
-                    margin: '0 -16px',
-                    backdropFilter: 'blur(10px)'
+                    position: 'fixed',
+                    bottom: '20px',
+                    left: '20px',
+                    right: '20px',
+                    maxWidth: '800px',
+                    margin: '0 auto',
+                    background: 'rgba(249, 250, 251, 0.95)',
+                    padding: '16px 20px',
+                    borderRadius: '20px',
+                    backdropFilter: 'blur(10px)',
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    zIndex: 1000
                   }}
                 >
                   <div style={{
                     display: 'flex',
                     alignItems: 'flex-end',
                     gap: '12px',
-                    maxWidth: '800px',
-                    margin: '0 auto',
                     position: 'relative'
                   }}>
                     <div style={{ 

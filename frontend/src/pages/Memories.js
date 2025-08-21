@@ -34,6 +34,11 @@ const Memories = () => {
     filterAndSortEntries();
   }, [entries, searchTerm, selectedTag, sortBy]);
 
+  // Debug effect for selectedTag changes
+  useEffect(() => {
+    console.log('Selected tag changed to:', selectedTag);
+  }, [selectedTag]);
+
   const loadEntries = async () => {
     setLoading(true);
     try {
@@ -43,6 +48,7 @@ const Memories = () => {
           ...entry,
           colorTag: getEmotionTag(entry)
         }));
+        console.log('Loaded entries with tags:', entriesWithTags);
         setEntries(entriesWithTags);
       }
     } catch (error) {
@@ -52,19 +58,46 @@ const Memories = () => {
   };
 
   const getEmotionTag = (entry) => {
-    const emotion = entry?.analysis?.affect?.primary_emotions?.[0]?.label || entry?.mood || '';
+    // Debug: Log the entry structure
+    console.log('Analyzing entry for emotion tag:', entry);
+    
+    // Try multiple sources for emotion data
+    let emotion = '';
+    
+    // Check analysis.affect.primary_emotions first
+    if (entry?.analysis?.affect?.primary_emotions && Array.isArray(entry.analysis.affect.primary_emotions)) {
+      emotion = entry.analysis.affect.primary_emotions[0]?.label || '';
+    }
+    
+    // Fallback to mood field
+    if (!emotion && entry?.mood) {
+      emotion = entry.mood;
+    }
+    
+    // Fallback to analysis.emotion (legacy)
+    if (!emotion && entry?.analysis?.emotion) {
+      emotion = entry.analysis.emotion;
+    }
+    
+    console.log('Detected emotion:', emotion);
+    
     const emotionLower = emotion.toLowerCase();
     
-    if (emotionLower.includes('happy') || emotionLower.includes('joy')) return 'happy';
-    if (emotionLower.includes('calm') || emotionLower.includes('peaceful')) return 'peaceful';
-    if (emotionLower.includes('excited') || emotionLower.includes('energetic')) return 'excited';
-    if (emotionLower.includes('grateful') || emotionLower.includes('thankful')) return 'grateful';
-    if (emotionLower.includes('creative') || emotionLower.includes('inspired')) return 'creative';
-    if (emotionLower.includes('sad') || emotionLower.includes('difficult') || emotionLower.includes('challenging')) return 'challenging';
+    if (emotionLower.includes('happy') || emotionLower.includes('joy') || emotionLower.includes('positive')) return 'happy';
+    if (emotionLower.includes('calm') || emotionLower.includes('peaceful') || emotionLower.includes('relaxed')) return 'peaceful';
+    if (emotionLower.includes('excited') || emotionLower.includes('energetic') || emotionLower.includes('enthusiastic')) return 'excited';
+    if (emotionLower.includes('grateful') || emotionLower.includes('thankful') || emotionLower.includes('appreciative')) return 'grateful';
+    if (emotionLower.includes('creative') || emotionLower.includes('inspired') || emotionLower.includes('imaginative')) return 'creative';
+    if (emotionLower.includes('sad') || emotionLower.includes('difficult') || emotionLower.includes('challenging') || emotionLower.includes('negative')) return 'challenging';
+    if (emotionLower.includes('reflective') || emotionLower.includes('thoughtful') || emotionLower.includes('contemplative')) return 'reflective';
+    
+    // Default to reflective if no emotion detected
     return 'reflective';
   };
 
   const filterAndSortEntries = () => {
+    console.log('Filtering entries with:', { searchTerm, selectedTag, sortBy, totalEntries: entries.length });
+    
     let filtered = [...entries];
 
     // Filter by search term
@@ -78,7 +111,11 @@ const Memories = () => {
 
     // Filter by color tag
     if (selectedTag !== 'all') {
-      filtered = filtered.filter(entry => entry.colorTag === selectedTag);
+      console.log('Filtering by tag:', selectedTag);
+      filtered = filtered.filter(entry => {
+        console.log('Entry colorTag:', entry.colorTag, 'Selected tag:', selectedTag, 'Match:', entry.colorTag === selectedTag);
+        return entry.colorTag === selectedTag;
+      });
     }
 
     // Sort entries
@@ -95,6 +132,7 @@ const Memories = () => {
       }
     });
 
+    console.log('Filtered results:', filtered.length, 'entries');
     setFilteredEntries(filtered);
   };
 
@@ -145,6 +183,7 @@ const Memories = () => {
           <ul className="nav-links">
             <li><Link to="/dashboard" className="nav-link">Dashboard</Link></li>
             <li><Link to="/coaching" className="nav-link">AI Coach</Link></li>
+            <li><Link to="/gallery" className="nav-link">Gallery</Link></li>
             <li><Link to="/emotional-map" className="nav-link">Emotional Map</Link></li>
             <li><Link to="/memories" className="nav-link" style={{ color: 'var(--primary-purple)' }}>Memories</Link></li>
             <li><Link to="/quotes" className="nav-link">Quotes</Link></li>
@@ -213,13 +252,19 @@ const Memories = () => {
             {colorTags.map((tag) => (
               <button
                 key={tag.id}
-                onClick={() => setSelectedTag(tag.id)}
+                onClick={() => {
+                  console.log('Tag clicked:', tag.id, tag.name);
+                  setSelectedTag(tag.id);
+                }}
                 className={`btn ${selectedTag === tag.id ? 'btn-primary' : 'btn-ghost'}`}
                 style={{
                   fontSize: '14px',
                   padding: '6px 12px',
                   borderColor: selectedTag === tag.id ? tag.color : 'transparent',
-                  backgroundColor: selectedTag === tag.id ? tag.color + '20' : 'transparent'
+                  backgroundColor: selectedTag === tag.id ? tag.color + '20' : 'transparent',
+                  transform: selectedTag === tag.id ? 'scale(1.05)' : 'scale(1)',
+                  transition: 'all 0.2s ease',
+                  boxShadow: selectedTag === tag.id ? `0 2px 8px ${tag.color}40` : 'none'
                 }}
               >
                 <div
@@ -392,6 +437,25 @@ const Memories = () => {
         {!loading && filteredEntries.length > 0 && (
           <div style={{ textAlign: 'center', marginTop: '32px', color: 'var(--text-muted)' }}>
             Showing {filteredEntries.length} of {entries.length} memories
+            {selectedTag !== 'all' && (
+              <div style={{ marginTop: '8px', fontSize: '14px' }}>
+                Filtered by: <strong>{colorTags.find(t => t.id === selectedTag)?.name}</strong>
+              </div>
+            )}
+          </div>
+        )}
+        
+        {/* Debug Info (remove in production) */}
+        {!loading && (
+          <div style={{ marginTop: '16px', padding: '12px', backgroundColor: '#f0f0f0', borderRadius: '8px', fontSize: '12px' }}>
+            <strong>Debug Info:</strong><br/>
+            Selected Tag: {selectedTag}<br/>
+            Total Entries: {entries.length}<br/>
+            Filtered Entries: {filteredEntries.length}<br/>
+            Search Term: "{searchTerm}"<br/>
+            Tag Distribution: {colorTags.map(tag => 
+              `${tag.name}: ${entries.filter(e => e.colorTag === tag.id).length}`
+            ).join(', ')}
           </div>
         )}
 

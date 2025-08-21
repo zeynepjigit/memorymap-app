@@ -12,7 +12,38 @@ const EmotionalMap = () => {
 
   useEffect(() => {
     loadData();
+
+    // Sayfa focus veya visibility change olduğunda veriyi yeniden yükle
+    const handleFocus = () => {
+      loadData();
+    };
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        loadData();
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Component unmount olduğunda listener'ları temizle
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
+
+  // Navigation ile sayfa değiştiğinde veriyi yenile
+  useEffect(() => {
+    // Component mount olduğunda loadData zaten çağrılıyor, 
+    // bu useEffect navigation sonrası güncellemeler için
+    const timeoutId = setTimeout(() => {
+      loadData();
+    }, 100);
+
+    return () => clearTimeout(timeoutId);
+  }, [window.location.pathname]);
 
   const loadData = async () => {
     setLoading(true);
@@ -180,6 +211,7 @@ const EmotionalMap = () => {
           <ul className="nav-links">
             <li><Link to="/dashboard" className="nav-link">Dashboard</Link></li>
             <li><Link to="/coaching" className="nav-link">AI Coach</Link></li>
+            <li><Link to="/gallery" className="nav-link">Gallery</Link></li>
             <li><Link to="/emotional-map" className="nav-link" style={{ color: 'var(--primary-purple)' }}>Emotional Map</Link></li>
             <li><Link to="/memories" className="nav-link">Memories</Link></li>
             <li><Link to="/quotes" className="nav-link">Quotes</Link></li>

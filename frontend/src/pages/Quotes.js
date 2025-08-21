@@ -140,6 +140,7 @@ const Quotes = () => {
           <ul className="nav-links">
             <li><Link to="/dashboard" className="nav-link">Dashboard</Link></li>
             <li><Link to="/coaching" className="nav-link">AI Coach</Link></li>
+            <li><Link to="/gallery" className="nav-link">Gallery</Link></li>
             <li><Link to="/emotional-map" className="nav-link">Emotional Map</Link></li>
             <li><Link to="/memories" className="nav-link">Memories</Link></li>
             <li><Link to="/quotes" className="nav-link" style={{ color: 'var(--primary-purple)' }}>Quotes</Link></li>
